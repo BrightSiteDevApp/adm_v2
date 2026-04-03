@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vendor Registration | AFIT Digital Market</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../asset/style.css">
+
+    <style>
+        .header-top-flex { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .page-title { font-size: 20px; font-weight: 800; color: var(--text-main); margin: 0; }
+        
+        /* 🚀 NEW UNIQUE PRICING & PAYMENT CARD */
+        .premium-card { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; padding: 25px 20px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; overflow: hidden; }
+        .premium-card::before { content: '\f00c'; font-family: 'Font Awesome 5 Free'; font-weight: 900; position: absolute; right: -20px; top: -10px; font-size: 100px; opacity: 0.05; color: #38bdf8; }
+        
+        .premium-badge { display: inline-block; background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; margin-bottom: 10px; }
+        .price-text { font-size: 32px; font-weight: 900; margin-bottom: 5px; color: #ffffff; }
+        .price-sub { font-size: 13px; color: #94a3b8; font-weight: 600; margin-bottom: 20px; }
+        
+        .perks-list { list-style: none; padding: 0; margin: 0 0 20px 0; font-size: 13px; color: #e2e8f0; }
+        .perks-list li { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .perks-list i { color: #38bdf8; }
+
+        .payment-box { background: rgba(255, 255, 255, 0.05); border: 1px dashed rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 12px; text-align: center; }
+        .acct-num { font-size: 22px; font-weight: 900; letter-spacing: 2px; color: #38bdf8; display: block; margin-bottom: 2px; }
+        .bank-name { font-size: 12px; color: #cbd5e1; font-weight: 600; }
+
+        /* Form Styling */
+        .form-section-title { font-size: 15px; font-weight: 800; color: var(--text-main); margin: 30px 0 15px; display: flex; align-items: center; gap: 8px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 13px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; }
+        .form-input { width: 100%; padding: 14px 16px; border: 2px solid #e2e8f0; border-radius: 14px; font-size: 14px; background: #f8fafc; outline: none; transition: 0.2s; }
+        .form-input:focus { border-color: var(--brand-color); background: white; }
+
+        /* 🚀 NEW CHIP DESIGN FOR CATEGORIES */
+        .chip-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+        .chip-label { display: inline-block; padding: 10px 18px; background: white; border: 2px solid #e2e8f0; border-radius: 30px; font-size: 13px; font-weight: 700; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+        .cat-checkbox:checked + .chip-label { background: #eff6ff; color: var(--brand-color); border-color: var(--brand-color); box-shadow: 0 4px 10px rgba(45, 142, 255, 0.15); }
+        .cat-checkbox { display: none; }
+
+        /* Modern File Upload */
+        .file-upload-box { border: 2px dashed #cbd5e1; border-radius: 16px; padding: 25px; text-align: center; cursor: pointer; background: white; position: relative; transition: 0.2s; }
+        .file-upload-box:hover { border-color: var(--brand-color); background: #f8fafc; }
+        .file-upload-box input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+        .file-upload-box.has-file { border-style: solid; border-color: #10b981; background: #ecfdf5; }
+
+        .submit-btn { background: var(--brand-color); color: white; width: 100%; padding: 18px; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 15px rgba(45, 142, 255, 0.3); transition: 0.2s; }
+        .submit-btn:active { transform: scale(0.98); }
+        .submit-btn:disabled { background: #94a3b8; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        /* Loading Screen */
+        #auth-check-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: var(--brand-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ========================================= */
+        /* 🌙 DARK MODE FIXES                        */
+        /* ========================================= */
+        body.dark-mode { background-color: #020617 !important; }
+        body.dark-mode .app-container { background: #0f172a !important; }
+        body.dark-mode .header { background: #1e293b !important; box-shadow: 0 2px 10px rgba(0,0,0,0.5) !important; border-bottom: 1px solid #334155; }
+        body.dark-mode .page-title, body.dark-mode .fa-arrow-left, body.dark-mode .form-section-title { color: #f1f5f9 !important; }
+        
+        body.dark-mode .form-input { background: #0f172a !important; color: #f1f5f9 !important; border-color: #334155 !important; }
+        body.dark-mode .form-input:focus { border-color: var(--brand-color) !important; }
+        
+        body.dark-mode .chip-label { background: #1e293b !important; border-color: #334155 !important; color: #94a3b8 !important; }
+        body.dark-mode .cat-checkbox:checked + .chip-label { background: rgba(45, 142, 255, 0.1) !important; color: var(--brand-color) !important; border-color: var(--brand-color) !important; }
+
+        body.dark-mode .file-upload-box { background: #1e293b !important; border-color: #334155 !important; }
+        body.dark-mode .file-upload-box:hover { background: #0f172a !important; border-color: var(--brand-color) !important; }
+        body.dark-mode .file-upload-box.has-file { background: rgba(16, 185, 129, 0.1) !important; border-color: #10b981 !important; }
+
+        body.dark-mode #auth-check-loader { background: #020617 !important; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-check-loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-weight: 600; color: #64748b; font-size: 14px;">Preparing application...</p>
+    </div>
+
+    <div class="app-container">
+        <div class="header">
+            <div class="header-top-flex">
+                <button onclick="window.history.back()" style="background:none; border:none; font-size:20px; color:var(--text-main); cursor:pointer;"><i class="fas fa-arrow-left"></i></button>
+                <h1 class="page-title">Vendor Application</h1>
+            </div>
+        </div>
+
+        <div class="content-area" style="padding: 20px 20px 90px;">
+            
+            <div class="premium-card">
+                <div class="premium-badge">AFIT Seller Plan</div>
+                <div class="price-text">₦3,000</div>
+                <div class="price-sub">One-time payment. No hidden fees.</div>
+                
+                <ul class="perks-list">
+                    <li><i class="fas fa-check-circle"></i> Lifetime Blue Tick Verification</li>
+                    <li><i class="fas fa-check-circle"></i> Post up to 15 Active Items</li>
+                    <li><i class="fas fa-check-circle"></i> Direct WhatsApp Messaging</li>
+                </ul>
+
+                <div class="payment-box">
+                    <span style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 5px;">Transfer Fee Here</span>
+                    <span class="acct-num">0123456789</span>
+                    <span class="bank-name">GTBank • AFIT Digital Market</span>
+                </div>
+            </div>
+
+            <form id="regForm" onsubmit="submitRegistration(event)">
+                
+                <div class="form-section-title"><i class="fas fa-receipt" style="color: var(--brand-color);"></i> Payment Verification</div>
+
+                <div class="form-group">
+                    <div class="file-upload-box" id="box-receipt">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 28px; color: #94a3b8; margin-bottom: 10px;"></i>
+                        <div id="lbl-receipt" style="font-size: 13px; font-weight: 600; color: var(--text-main);">Upload Transfer Receipt</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Image or Screenshot</div>
+                        <input type="file" id="f-receipt" accept="image/*" required onchange="updateFileLabel(this, 'lbl-receipt', 'box-receipt')">
+                    </div>
+                </div>
+
+                <div class="form-section-title"><i class="fas fa-store" style="color: var(--brand-color);"></i> Business Details</div>
+                
+                <div class="form-group">
+                    <label class="form-label">Brand / Business Name</label>
+                    <input type="text" id="v-name" class="form-input" placeholder="e.g. Sarah's Pastries" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Business WhatsApp Number</label>
+                    <input type="tel" id="v-whatsapp" class="form-input" placeholder="e.g. 08012345678" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location (Hostel or Off-Campus Area)</label>
+                    <input type="text" id="v-location" class="form-input" placeholder="e.g. Alpha Hostel" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Short Description</label>
+                    <textarea id="v-desc" class="form-input" style="height:90px; resize: none;" placeholder="Tell buyers what you sell or the services you provide..." required></textarea>
+                </div>
+
+               <div class="form-group">
+    <label class="form-label">What categories do you sell in? (Select all that apply)</label>
+    <div class="chip-grid">
+        <label><input type="checkbox" class="cat-checkbox" value="Gadgets"><span class="chip-label">Gadgets</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Fashion"><span class="chip-label">Fashion</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Food"><span class="chip-label">Food</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Transport"><span class="chip-label">Transport</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Beauty"><span class="chip-label">Beauty</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Health"><span class="chip-label">Health</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="CampusServices"><span class="chip-label">Campus Services</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Professional"><span class="chip-label">Professional</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Tutorials"><span class="chip-label">Tutorials</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Books"><span class="chip-label">Books</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Accommodation"><span class="chip-label">Hostels</span></label>
+        <label><input type="checkbox" class="cat-checkbox" value="Electronics"><span class="chip-label">Electronics</span></label>
+    </div>
+</div>
+
+                <div class="form-section-title"><i class="fas fa-id-badge" style="color: var(--brand-color);"></i> Branding & Identity</div>
+
+                <div class="form-group">
+                    <label class="form-label">Business Logo or Clear Picture</label>
+                    <div class="file-upload-box" id="box-logo">
+                        <i class="fas fa-image" style="font-size: 24px; color: #94a3b8; margin-bottom: 10px;"></i>
+                        <div id="lbl-logo" style="font-size: 13px; font-weight: 600; color: var(--text-main);">Tap to upload Logo</div>
+                        <input type="file" id="f-logo" accept="image/*" required onchange="updateFileLabel(this, 'lbl-logo', 'box-logo')">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Student ID Card (Kept 100% Private)</label>
+                    <div class="file-upload-box" id="box-id">
+                        <i class="fas fa-id-card" style="font-size: 24px; color: #94a3b8; margin-bottom: 10px;"></i>
+                        <div id="lbl-id" style="font-size: 13px; font-weight: 600; color: var(--text-main);">Tap to upload AFIT ID Card</div>
+                        <input type="file" id="f-id" accept="image/*" required onchange="updateFileLabel(this, 'lbl-id', 'box-id')">
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="submit-btn">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../asset/script.js"></script>
+
+    <script>
+        // ⚠️ REPLACE WITH YOUR CLOUDINARY CLOUD NAME
+        const CLOUD_NAME = "dgsblxgni"; 
+
+        let currentUser = null;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            if (!session) { 
+                window.location.href = "../login/index.html?redirect=../vendor-reg/index.html"; 
+                return; 
+            }
+            
+            currentUser = session.user;
+
+            try {
+                // 🚀 FIXED: Check against user_id, not profile_id, to match your schema
+                const { data: existingVendor } = await supabaseClient
+                    .from('vendors')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                if (existingVendor) {
+                    // Already applied or active, boot to dashboard
+                    window.location.href = "../add-product/index.html";
+                    return;
+                }
+                
+                document.getElementById('auth-check-loader').style.display = 'none';
+
+            } catch (error) {
+                // No row found, let them register
+                document.getElementById('auth-check-loader').style.display = 'none';
+            }
+        });
+
+        function updateFileLabel(input, labelId, boxId) {
+            if (input.files && input.files[0]) {
+                document.getElementById(labelId).innerHTML = `<span style="color: #10b981;"><i class="fas fa-check-circle"></i> ${input.files[0].name}</span>`;
+                document.getElementById(boxId).classList.add('has-file');
+            }
+        }
+
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            // ⚠️ REPLACE 'afit_images' WITH YOUR CLOUDINARY UPLOAD PRESET IF DIFFERENT
+            formData.append('upload_preset', 'afit_media'); 
+            
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error.message);
+            return data.secure_url;
+        }
+
+        async function submitRegistration(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            
+            const selectedCats = [];
+            document.querySelectorAll('.cat-checkbox:checked').forEach(c => selectedCats.push(c.value));
+            if(selectedCats.length === 0) return alert("Please select at least one category for your business.");
+
+            btn.disabled = true;
+
+            try {
+                // 1. Upload Images
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading Receipt (1/3)...';
+                const receiptUrl = await uploadToCloudinary(document.getElementById('f-receipt').files[0]);
+
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading Logo (2/3)...';
+                const logoUrl = await uploadToCloudinary(document.getElementById('f-logo').files[0]);
+
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading ID (3/3)...';
+                const idUrl = await uploadToCloudinary(document.getElementById('f-id').files[0]);
+
+                // 2. Generate a temporary Vendor Code (Admin can edit this to V001 later)
+                const tempCode = 'AFIT-V-' + Math.floor(1000 + Math.random() * 9000);
+
+               // 3. Save to Supabase (Pending Status)
+                btn.innerHTML = '<i class="fas fa-save"></i> Submitting Application...';
+                
+                const { error } = await supabaseClient.from('vendors').insert([{
+                    user_id: currentUser.id,
+                    email: currentUser.email,               // Automatically grabs logged-in email!
+                    vendor_code: tempCode,
+                    business_name: document.getElementById('v-name').value.trim(),
+                    whatsapp_number: document.getElementById('v-whatsapp').value.trim(),
+                    location: document.getElementById('v-location').value.trim(),
+                    description: document.getElementById('v-desc').value.trim(),
+                    categories: selectedCats.join(", "),
+                    logo_url: logoUrl,
+                    receipt_url: receiptUrl,
+                    student_id_url: idUrl,
+                    subscription_plan: 'Verified', 
+                    max_items: 15,
+                    is_active: false 
+                }]);
+
+                if (error) throw error;
+
+                alert("Application Submitted! You will be redirected to the dashboard to wait for admin approval.");
+                window.location.href = "../add-product/index.html";
+
+            } catch (error) {
+                console.error(error);
+                alert("Failed to submit. Please check your internet connection.");
+                btn.disabled = false;
+                btn.innerText = "Submit Application";
+            }
+        }
+    </script>
+</body>
+</html>
