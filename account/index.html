@@ -161,6 +161,12 @@
 
             <div class="menu-title">Support & Settings</div>
 
+            <a href="../admin/" class="menu-btn" id="btn-admin-panel" style="display: none; border-left: 4px solid #f59e0b;">
+                <div class="menu-icon" style="color: #f59e0b;"><i class="fas fa-user-shield"></i></div>
+                <div class="menu-text">Admin Command Center</div>
+                <i class="fas fa-chevron-right" style="color: #cbd5e1;"></i>
+            </a>
+
             <a href="#" class="menu-btn">
                 <div class="menu-icon" style="color: #10b981;"><i class="fas fa-headset"></i></div>
                 <div class="menu-text">Contact Admin</div>
@@ -209,7 +215,7 @@
                 }
             }
 
-            // 🚀 FIX: Fetch Vendor Data using user_id instead of profile_id
+            // Fetch Vendor Data
             const { data: vendorData } = await supabaseClient
                 .from('vendors')
                 .select('id')
@@ -223,6 +229,18 @@
 
                 document.getElementById('btn-view-requests').style.display = "flex";
                 document.getElementById('btn-edit-profile').style.display = "flex";
+            }
+
+            // 🚀 NEW: Fetch Admin Data
+            // If the user's email exists in the admins table, unhide the Admin button
+            const { data: adminData } = await supabaseClient
+                .from('admins')
+                .select('email')
+                .eq('email', currentUser.email)
+                .maybeSingle();
+
+            if (adminData) {
+                document.getElementById('btn-admin-panel').style.display = "flex";
             }
         });
 
