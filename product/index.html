@@ -271,10 +271,9 @@
                     document.getElementById('vendor-btn').onclick = () => window.location.href = `../vendors/profile/index.html?id=${vendor.id}`;
 
                     const waBtn = document.getElementById('whatsapp-btn');
-                    // We query the associated profile for phone number if the vendor table doesn't have it explicitly
-                    const { data: profileData } = await supabaseClient.from('profiles').select('phone_number').eq('id', vendor.user_id).single();
                     
-                    let phone = profileData?.phone_number || "";
+                    // 🚀 FIX: We now pull the number directly from the vendors table!
+                    let phone = vendor.whatsapp_number || "";
                     if(phone.startsWith('0')) phone = "234" + phone.substring(1);
                     
                     const fPrice = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(product.price);
