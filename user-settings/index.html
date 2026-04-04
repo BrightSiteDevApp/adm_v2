@@ -159,14 +159,15 @@
 
                 const { data, error } = await supabaseClient
                     .from('profiles')
-                    .select('full_name')
+                    .select('full_name, phone_number')
                     .eq('id', currentUser.id)
                     .single();
 
                 if (error) throw error;
 
-                if (data && data.full_name) {
-                    document.getElementById('user-name').value = data.full_name;
+                if (data) {
+                    if (data.full_name) document.getElementById('user-name').value = data.full_name;
+                    if (data.phone_number) document.getElementById('user-phone').value = data.phone_number;
                 }
 
                 document.getElementById('loading-overlay').style.display = 'none';
@@ -201,9 +202,9 @@
 
             try {
                 // 1. Update Name in 'profiles' table
-                const { error: profileError } = await supabaseClient
+               const { error: profileError } = await supabaseClient
                     .from('profiles')
-                    .update({ full_name: newName })
+                    .update({ full_name: newName, phone_number: newPhone })
                     .eq('id', currentUser.id);
 
                 if (profileError) throw profileError;

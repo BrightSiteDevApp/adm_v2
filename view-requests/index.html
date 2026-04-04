@@ -213,7 +213,7 @@
                 
                 const { data: profilesData } = await supabaseClient
                     .from('profiles')
-                    .select('id, full_name, phone')
+                    .select('id, full_name, phone_number')
                     .in('id', uniqueUserIds);
 
                 const profileDictionary = {};
@@ -228,7 +228,7 @@
                     
                     const userProfile = profileDictionary[req.user_id] || {};
                     const customerName = userProfile.full_name || "Customer";
-                    const rawPhone = userProfile.phone || null;
+                    const rawPhone = userProfile.phone_number || null;
                     const timeAgo = getTimeAgo(req.created_at);
 
                     // Dynamic image block
