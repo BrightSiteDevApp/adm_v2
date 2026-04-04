@@ -245,7 +245,11 @@
                 <span class="red-dot msg-dot"></span>
                 <span>Messages</span>
             </a>
-            <div class="nav-fab" style="border-color: var(--brand-color); background: white; color: var(--brand-color); box-shadow: none;"><i class="fas fa-plus"></i></div>
+            
+            <div class="nav-fab">
+                <i class="fas fa-plus"></i>
+            </div>
+            
             <a href="#" class="nav-item" onclick="requireLogin('../saved/index.html')"><i class="fas fa-heart"></i><span>Saved</span></a>
             <a href="../account/index.html" class="nav-item"><i class="fas fa-user"></i><span>Account</span></a>
         </div>
@@ -253,7 +257,7 @@
 
     <script src="../asset/script.js"></script>
 
-   <script>
+    <script>
         // ⚠️ PUT YOUR CLOUDINARY CLOUD NAME HERE
         const CLOUD_NAME = "dgsblxgni"; 
         // ⚠️ PUT YOUR NEW SINGLE PRESET NAME HERE

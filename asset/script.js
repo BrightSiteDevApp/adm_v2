@@ -312,9 +312,50 @@ function setupExpandableFooter() {
     });
 }
 
-window.downloadApp = function() {
-    alert("🚀 Preparing AFIT Digital Market PWA Download...");
+// =========================================
+// 🚀 PWA INSTALLATION LOGIC
+// =========================================
+let deferredPrompt;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+// Register the Service Worker (Must have a sw.js file in root)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker Registered!', reg))
+            .catch(err => console.log('Service Worker Registration Failed', err));
+    });
 }
+
+// Catch the Android install prompt so we can trigger it from our button
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+// Smart Download App Function triggered by the HTML button
+window.downloadApp = async function() {
+    if (isIOS) {
+        const iosPopup = document.getElementById('ios-install-popup');
+        if (iosPopup) {
+            iosPopup.style.display = 'flex';
+        } else {
+            // Fallback just in case the HTML element wasn't added correctly
+            alert("To install AFIT Market on iOS:\n\n1. Tap the 'Share' icon at the bottom of Safari.\n2. Scroll down and tap 'Add to Home Screen'.");
+        }
+    } else if (deferredPrompt) {
+        // Android / Chrome - Show native prompt
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('AFIT Market PWA Installed!');
+        }
+        deferredPrompt = null;
+    } else {
+        // Fallback if already installed or unsupported
+        alert("The app is already installed on your device or your current browser doesn't support automatic installation.");
+    }
+};
 
 // =========================================
 // 🌙 GLOBAL DARK MODE LOGIC

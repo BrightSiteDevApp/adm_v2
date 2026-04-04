@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Search Results | AFIT Digital Market</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../asset/style.css">
+
+    <style>
+        .search-header-row { display: flex; align-items: center; gap: 15px; width: 100%; }
+        .search-input-wrapper { flex: 1; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 30px; display: flex; align-items: center; padding: 12px 20px; margin: 0; transition: 0.2s; }
+        .search-input-wrapper:focus-within { border-color: var(--brand-color); background: white; box-shadow: 0 4px 15px rgba(45, 142, 255, 0.1); }
+        .search-input-wrapper input[type="search"] { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; color: var(--text-main); -webkit-appearance: none; }
+        .search-input-wrapper i { color: var(--brand-color); margin-right: 12px; cursor: pointer; font-size: 16px; }
+
+        .filter-row { 
+            display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; 
+            padding: 15px 20px; align-items: center; width: 100%; box-sizing: border-box;
+            background: white; border-bottom: 1px solid #f1f5f9; position: sticky; top: 70px; z-index: 90;
+        }
+        .filter-input { 
+            width: 100%; min-width: 0; padding: 12px 10px; border: 2px solid #e2e8f0; 
+            border-radius: 12px; font-size: 13px; outline: none; box-sizing: border-box;
+            background: #f8fafc; transition: 0.2s;
+        }
+        .filter-input:focus { border-color: var(--brand-color); background: white; }
+        .filter-btn { 
+            background: var(--text-main); color: white; border: none; 
+            border-radius: 12px; padding: 0 16px; height: 100%; min-height: 42px; 
+            font-weight: 800; font-size: 13px; cursor: pointer; transition: 0.2s; 
+        }
+        .filter-btn:active { transform: scale(0.95); }
+
+        .result-count-text { font-size: 13px; color: var(--text-muted); font-weight: 700; margin-bottom: 15px; }
+        
+        .empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 24px; border: 1px dashed #cbd5e1; margin-bottom: 25px; }
+        .empty-icon-wrapper { width: 70px; height: 70px; border-radius: 50%; background: #f8fafc; display: flex; justify-content: center; align-items: center; margin: 0 auto 15px; }
+        .empty-icon-wrapper i { font-size: 30px; color: #94a3b8; }
+        .empty-state h3 { font-size: 16px; color: var(--text-main); margin-bottom: 8px; font-weight: 800; }
+        .empty-state p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+        /* 🚀 NEW: Clean Vendor Card Override */
+        .vendor-card { 
+            background: white; border-radius: 20px; padding: 15px 10px 20px; 
+            text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.02); 
+            border: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+        .vendor-card:active { transform: scale(0.96); }
+        .vendor-logo { 
+            width: 75px; height: 75px; border-radius: 50%; object-fit: cover; 
+            margin: 5px auto 12px; display: block; border: 2px solid #f8fafc; background: #eee; 
+        }
+        .vendor-name { 
+            font-size: 14px; font-weight: 900; color: var(--text-main); 
+            margin-bottom: 4px; display: flex; justify-content: center; align-items: center; 
+            gap: 4px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            text-transform: uppercase; 
+        }
+        .vendor-desc { 
+            font-size: 11px; color: var(--text-muted); font-weight: 600; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            width: 100%; text-transform: uppercase; 
+        }
+
+        /* Skeletons */
+        .sk-shimmer { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .sk-card { background: white; border-radius: 16px; padding: 10px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; height: 100%; }
+        .sk-img { width: 100%; height: 140px; border-radius: 10px; margin-bottom: 10px; flex-shrink: 0; }
+        .sk-v-avatar { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 10px; flex-shrink: 0; }
+        .sk-line { height: 12px; border-radius: 4px; margin-bottom: 8px; }
+        .sk-line.short { width: 40%; }
+        .sk-line.medium { width: 70%; }
+        .sk-line.long { width: 100%; }
+
+        /* ========================================= */
+        /* 🌙 DARK MODE FIXES                        */
+        /* ========================================= */
+        body.dark-mode { background-color: #020617 !important; }
+        body.dark-mode .app-container { background: #0f172a !important; }
+        
+        body.dark-mode .header { background: #1e293b !important; box-shadow: 0 2px 10px rgba(0,0,0,0.5) !important; border-bottom: 1px solid #334155; }
+        body.dark-mode .fa-arrow-left { color: #f1f5f9 !important; }
+        
+        body.dark-mode .search-input-wrapper { background: #0f172a !important; border-color: #334155 !important; }
+        body.dark-mode .search-input-wrapper input { color: #f1f5f9 !important; }
+        
+        body.dark-mode .filter-row { background: #1e293b !important; border-color: #334155 !important; }
+        body.dark-mode .filter-input { background: #0f172a !important; color: #f1f5f9 !important; border-color: #334155 !important; }
+        body.dark-mode .filter-input:focus { border-color: var(--brand-color) !important; }
+        body.dark-mode .filter-btn { background: var(--brand-color) !important; }
+        
+        body.dark-mode .section-title { color: #f1f5f9 !important; }
+        body.dark-mode .result-count-text { color: #94a3b8 !important; }
+        
+        body.dark-mode .empty-state { background: #1e293b !important; border-color: #334155 !important; }
+        body.dark-mode .empty-icon-wrapper { background: #0f172a !important; }
+        body.dark-mode .empty-state h3 { color: #f1f5f9 !important; }
+        body.dark-mode .empty-state p { color: #94a3b8 !important; }
+
+        /* 🚀 NEW: Clean Vendor Card Dark Mode */
+        body.dark-mode .vendor-card { background: #1e293b !important; border-color: #334155 !important; }
+        body.dark-mode .vendor-name { color: #f1f5f9 !important; }
+        body.dark-mode .vendor-logo { border-color: #334155 !important; background: #0f172a !important; }
+        
+        body.dark-mode .sk-card { background: #1e293b !important; border-color: #334155 !important; }
+        
+        /* 🚀 FIX: Ensure card prices are always blue in dark mode */
+        body.dark-mode .card .card-price { color: var(--brand-color) !important; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div class="header">
+            <div class="search-header-row">
+                <button onclick="window.history.back()" style="background:none; border:none; font-size:20px; color:var(--text-main); cursor:pointer;"><i class="fas fa-arrow-left"></i></button>
+                
+                <form class="search-input-wrapper" action="#" onsubmit="return triggerSearch(event)">
+                    <i class="fas fa-search" onclick="triggerSearch(event)"></i>
+                    <input type="search" id="search-input" placeholder="Search items, stores, services...">
+                </form>
+            </div>
+        </div>
+
+        <div class="filter-row">
+            <input type="number" id="min-price" class="filter-input" placeholder="Min (₦)">
+            <input type="number" id="max-price" class="filter-input" placeholder="Max (₦)">
+            <button class="filter-btn" onclick="applyFilters()">Filter</button>
+        </div>
+
+        <div class="content-area" style="padding: 20px 0 110px 0;">
+            
+            <div class="section-wrapper" id="items-section">
+                <div class="section-header" style="margin-bottom: 5px;">
+                    <div class="section-title"><i class="fas fa-box-open" style="color: var(--brand-color);"></i> Matched Items</div>
+                </div>
+                <div class="result-count-text" id="items-count">Searching...</div>
+                
+                <div class="product-grid" id="matched-items-grid"></div>
+            </div>
+
+            <div class="section-wrapper" id="vendors-section">
+                <div class="section-header" style="margin-bottom: 5px;">
+                    <div class="section-title"><i class="fas fa-store" style="color: var(--brand-color);"></i> Matched Stores</div>
+                </div>
+                <div class="result-count-text" id="vendors-count">Searching...</div>
+                
+                <div class="product-grid" id="matched-vendors-grid"></div>
+            </div>
+
+            <hr style="border: 0; border-top: 4px solid #f1f5f9; margin: 20px 0 30px;">
+
+            <div class="section-wrapper">
+                <div class="section-header">
+                    <div class="section-title">Discover More</div>
+                    <a href="../items/index.html" class="see-all">See all</a>
+                </div>
+                <div class="product-grid" id="explore-items-grid"></div>
+            </div>
+
+            <div class="section-wrapper">
+                <div class="section-header">
+                    <div class="section-title">Explore Vendors</div>
+                    <a href="../vendors/index.html" class="see-all">See all</a>
+                </div>
+                <div class="product-grid" id="explore-vendors-grid"></div>
+            </div>
+
+        </div>
+
+        <div class="bottom-nav">
+            <a href="../index.html" class="nav-item">
+                <i class="fas fa-home"></i><span>Home</span>
+            </a>
+            <a href="#" class="nav-item" onclick="requireLogin('../messages/index.html')">
+                <i class="fas fa-comment-dots"></i>
+                <span class="red-dot msg-dot"></span><span>Messages</span>
+            </a>
+            <div class="nav-fab" onclick="requireLogin('../add-product/index.html')">
+                <i class="fas fa-plus"></i>
+            </div>
+            <a href="#" class="nav-item" onclick="requireLogin('../saved/index.html')">
+                <i class="fas fa-heart"></i><span>Saved</span>
+            </a>
+            <a href="#" class="nav-item" onclick="requireLogin('../account/index.html')">
+                <i class="fas fa-user"></i><span>Account</span>
+            </a>
+        </div>
+
+    </div>
+
+    <script src="../asset/script.js"></script>
+
+    <script>
+        let allProducts = [];
+        let allVendors = [];
+        let currentQuery = "";
+
+        async function requireLogin(targetUrl) {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) window.location.href = targetUrl;
+            else window.location.href = "../login/index.html";
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showLoadingState() {
+            const itemSkeleton = `
+                <div class="sk-card"><div class="sk-shimmer sk-img"></div><div class="sk-shimmer sk-line short"></div><div class="sk-shimmer sk-line long"></div><div class="sk-shimmer sk-line medium"></div></div>
+                <div class="sk-card"><div class="sk-shimmer sk-img"></div><div class="sk-shimmer sk-line short"></div><div class="sk-shimmer sk-line long"></div><div class="sk-shimmer sk-line medium"></div></div>
+                <div class="sk-card"><div class="sk-shimmer sk-img"></div><div class="sk-shimmer sk-line short"></div><div class="sk-shimmer sk-line long"></div><div class="sk-shimmer sk-line medium"></div></div>
+                <div class="sk-card"><div class="sk-shimmer sk-img"></div><div class="sk-shimmer sk-line short"></div><div class="sk-shimmer sk-line long"></div><div class="sk-shimmer sk-line medium"></div></div>
+            `;
+            const vendorSkeleton = `
+                <div class="sk-card" style="text-align: center; align-items: center; padding-bottom: 15px;">
+                    <div class="sk-shimmer sk-v-avatar"></div><div class="sk-shimmer sk-line medium" style="margin: 0 auto 8px;"></div><div class="sk-shimmer sk-line short" style="margin: 0 auto;"></div>
+                </div>
+                <div class="sk-card" style="text-align: center; align-items: center; padding-bottom: 15px;">
+                    <div class="sk-shimmer sk-v-avatar"></div><div class="sk-shimmer sk-line medium" style="margin: 0 auto 8px;"></div><div class="sk-shimmer sk-line short" style="margin: 0 auto;"></div>
+                </div>
+            `;
+            
+            document.getElementById('matched-items-grid').innerHTML = itemSkeleton;
+            document.getElementById('matched-vendors-grid').innerHTML = vendorSkeleton;
+            document.getElementById('explore-items-grid').innerHTML = itemSkeleton;
+            document.getElementById('explore-vendors-grid').innerHTML = vendorSkeleton;
+            
+            document.getElementById('items-count').innerText = "Searching...";
+            document.getElementById('vendors-count').innerText = "Searching...";
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentQuery = urlParams.get('q') || "";
+            document.getElementById('search-input').value = currentQuery;
+
+            showLoadingState(); 
+
+            await fetchAllData();
+            executeSearch();
+        });
+
+        function triggerSearch(e) {
+            if (e) e.preventDefault(); 
+            document.getElementById('search-input').blur(); 
+            
+            const newQuery = document.getElementById('search-input').value.trim();
+            window.history.replaceState(null, '', `?q=${encodeURIComponent(newQuery)}`);
+            currentQuery = newQuery;
+            
+            showLoadingState(); 
+            
+            setTimeout(() => {
+                executeSearch();
+            }, 400);
+            
+            return false; 
+        }
+
+        function applyFilters() {
+            showLoadingState();
+            setTimeout(() => {
+                executeSearch(); 
+            }, 400);
+        }
+
+        async function fetchAllData() {
+            try {
+                const { data: pData } = await supabaseClient.from('products').select('id, name, price, image_urls, category, description').eq('status', 'Active');
+                if (pData) allProducts = pData;
+
+                const { data: vData } = await supabaseClient.from('vendors').select('id, vendor_code, business_name, description, logo_url, subscription_plan').eq('is_active', true);
+                if (vData) allVendors = vData;
+            } catch (error) { console.error("Database fetch error."); }
+        }
+
+        function executeSearch() {
+            const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+            const queryLower = currentQuery.toLowerCase();
+
+            const matchedItems = allProducts.filter(p => {
+                const matchesText = (p.name && p.name.toLowerCase().includes(queryLower)) || 
+                                    (p.description && p.description.toLowerCase().includes(queryLower)) ||
+                                    (p.category && p.category.toLowerCase().includes(queryLower));
+                const matchesPrice = p.price >= minPrice && p.price <= maxPrice;
+                return matchesText && matchesPrice;
+            });
+
+            renderItemsGrid(matchedItems, 'matched-items-grid', 'items-count');
+
+            const matchedVendors = allVendors.filter(v => {
+                const codeSearch = (v.vendor_code || "").toLowerCase();
+                return (v.business_name && v.business_name.toLowerCase().includes(queryLower)) || 
+                       (v.description && v.description.toLowerCase().includes(queryLower)) ||
+                       codeSearch.includes(queryLower);
+            });
+
+            renderVendorsGrid(matchedVendors, 'matched-vendors-grid', 'vendors-count');
+
+            const randomItems = shuffleArray([...allProducts]).slice(0, 8);
+            renderItemsGrid(randomItems, 'explore-items-grid', null);
+
+            const randomVendors = shuffleArray([...allVendors]).slice(0, 6);
+            renderVendorsGrid(randomVendors, 'explore-vendors-grid', null);
+        }
+
+        function renderItemsGrid(itemsArray, containerId, countId) {
+            const grid = document.getElementById(containerId);
+            if (countId) document.getElementById(countId).innerText = itemsArray.length === 0 ? "No items found." : `Found ${itemsArray.length} items`;
+
+            if (itemsArray.length === 0 && countId) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: span 2;">
+                        <div class="empty-icon-wrapper"><i class="fas fa-search"></i></div>
+                        <h3>No items found</h3>
+                        <p>Try adjusting your price filters or checking your spelling.</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = "";
+            itemsArray.forEach(p => {
+                const imgUrl = (p.image_urls && p.image_urls.length > 0) ? p.image_urls[0] : 'https://via.placeholder.com/300';
+                const fPrice = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(p.price);
+
+                grid.innerHTML += `
+                    <div class="card" onclick="window.location.href='../product/index.html?id=${p.id}'">
+                        <img src="${imgUrl}" class="card-img" onerror="this.src='https://via.placeholder.com/300'">
+                        <div class="card-price">${fPrice}</div>
+                        <div>
+                            <div class="card-title">${p.name}</div>
+                            <div class="card-desc">${p.category}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderVendorsGrid(vendorsArray, containerId, countId) {
+            const grid = document.getElementById(containerId);
+            if (countId) document.getElementById(countId).innerText = vendorsArray.length === 0 ? "No stores found." : `Found ${vendorsArray.length} stores`;
+
+            if (vendorsArray.length === 0 && countId) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: span 2;">
+                        <div class="empty-icon-wrapper"><i class="fas fa-store-slash"></i></div>
+                        <h3>No stores matched your search</h3>
+                        <p>Try searching by business name or Vendor ID.</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = "";
+            vendorsArray.forEach(v => {
+                const logo = v.logo_url || "https://via.placeholder.com/100";
+                const descTxt = v.description ? v.description.substring(0, 25) + '...' : 'Verified Seller';
+
+                let badgeColor = "var(--brand-color)"; 
+                if (v.subscription_plan === "Influencer") badgeColor = "#fbbf24"; 
+                if (v.subscription_plan === "Icon") badgeColor = "#1e293b"; 
+
+                // 🚀 NEW: Clean layout matching your screenshot
+                grid.innerHTML += `
+                    <div class="vendor-card" onclick="window.location.href='../vendors/profile/index.html?id=${v.id}'">
+                        <img src="${logo}" class="vendor-logo" onerror="this.src='https://via.placeholder.com/100'">
+                        <div class="vendor-name">
+                            ${v.business_name} <i class="fas fa-check-circle" style="color: ${badgeColor}; font-size: 13px;"></i>
+                        </div>
+                        <div class="vendor-desc">${descTxt}</div>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>

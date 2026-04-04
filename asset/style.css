@@ -1,7 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
 :root {
     --brand-color: #2d8eff; /* AFIT Blue */
     --brand-bg: #f0f4f8;
@@ -137,11 +136,13 @@ body { background: #e0e0e0; display: flex; justify-content: center; }
 .nav-item i { font-size: 20px; margin-bottom: 4px; transition: 0.2s; }
 .nav-item.active { color: var(--brand-color); }
 .nav-item.active i { transform: translateY(-2px); }
+
+/* 🚀 FIX: Made the border color dynamic using a CSS variable */
 .nav-fab {
     width: 50px; height: 50px; background: var(--brand-color); color: white;
     border-radius: 50%; display: flex; justify-content: center; align-items: center;
     font-size: 20px; margin-top: -25px; box-shadow: 0 8px 20px rgba(45, 142, 255, 0.4);
-    cursor: pointer; transition: 0.2s; border: 4px solid white;
+    cursor: pointer; transition: 0.2s; border: 4px solid var(--nav-bg-color, white);
 }
 .nav-fab:active { transform: scale(0.95); }
 
@@ -176,6 +177,8 @@ body.dark-mode {
     --brand-bg: #0f172a;
     --text-main: #f1f5f9;
     --text-muted: #94a3b8;
+    /* 🚀 FIX: We set the nav bg color here so the + button border matches */
+    --nav-bg-color: #1e293b; 
     background-color: #020617; 
 }
 
@@ -237,7 +240,7 @@ body.dark-mode .chat-last-msg {
 
 body.dark-mode .nav-item { color: #64748b; }
 body.dark-mode .nav-item.active { color: var(--brand-color); }
-body.dark-mode .nav-fab { border-color: #0f172a; }
+/* 🚀 FIX: The nav fab border color automatically updates now via CSS variable */
 
 body.dark-mode .sk-shimmer {
     background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
@@ -258,7 +261,7 @@ body.dark-mode .review-card {
 }
 
 body.dark-mode .card div { color: #f1f5f9 !important; }
-body.dark-mode .card-price { color: var(--brand-color) !important; }
+body.dark-mode .card .card-price { color: var(--brand-color) !important; }
 body.dark-mode .card div[style*="color: #64748b"] { color: #94a3b8 !important; }
 
 body.dark-mode .footer-logo-box,
