@@ -164,6 +164,13 @@
                 <button class="open-modal-btn" onclick="openModal('controlModal', () => { document.getElementById('control-results').innerHTML=''; document.getElementById('control-search').value=''; })">Open Control</button>
             </div>
 
+            <div class="admin-card theme-blue">
+                <div class="card-icon-wrapper"><i class="fas fa-thumbtack"></i></div>
+                <div class="card-title">Featured Items</div>
+                <div class="card-desc">Pin specific vendor items to the top of the homepage and category lists.</div>
+                <button class="open-modal-btn" onclick="openModal('featuredModal', () => { document.getElementById('featured-results').innerHTML=''; document.getElementById('featured-search').value=''; })">Manage Pinned Items</button>
+            </div>
+
             <div class="admin-card theme-yellow">
                 <div class="card-icon-wrapper"><i class="fas fa-star"></i></div>
                 <div class="card-title">Review Manager</div>
@@ -252,6 +259,19 @@
                     <button class="action-btn" id="cancelEditBtn" style="width: 100%; margin-top: 10px; display: none; background: #e2e8f0; color: #0f172a;" onclick="resetBlogForm()">Cancel Edit</button>
                 </div>
                 <div id="modal-blogs-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="featuredModal" class="modal-overlay">
+        <div class="modal-body">
+            <div class="modal-header"><h2><i class="fas fa-thumbtack" style="color:#3b82f6;"></i> Featured Items Manager</h2><button class="close-btn" onclick="closeModal('featuredModal')"><i class="fas fa-times"></i></button></div>
+            <div class="modal-content-scroll">
+                <div class="search-group">
+                    <input type="text" id="featured-search" class="admin-input" placeholder="Search Vendor Name or Code...">
+                    <button class="action-btn btn-primary" onclick="searchVendorItems()"><i class="fas fa-search"></i></button>
+                </div>
+                <div id="featured-results"></div>
             </div>
         </div>
     </div>
@@ -373,18 +393,15 @@
        window.approveVendor = async function(id) {
             if(!confirm("Approve this vendor? They will immediately get access to their dashboard and can start posting items.")) return;
             
-            // Show a loading state on the button so you know it's working
             event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Approving...';
             event.target.disabled = true;
 
             try {
-                // 🚀 FIX: We now capture the 'error' object from Supabase
                 const { error } = await supabaseClient
                     .from('vendors')
                     .update({ is_active: true, is_suspended: false })
                     .eq('id', id);
                 
-                // If Supabase returns an error, we stop and show you exactly what went wrong
                 if (error) {
                     console.error("Supabase Error:", error);
                     alert("Database Error: " + error.message);
@@ -402,6 +419,7 @@
                 event.target.disabled = false;
             }
         }
+        
         // 2 & 3. VENDOR SEARCH (For Control & Manager)
         window.searchVendors = async function(mode) {
             const query = document.getElementById(`${mode}-search`).value.toLowerCase().trim();
@@ -615,7 +633,7 @@
             const formData = new FormData(); 
             formData.append('file', file); 
             // ⚠️ REPLACE 'afit_images' WITH YOUR CLOUDINARY UPLOAD PRESET IF DIFFERENT
-            formData.append('upload_preset', 'afit_images');
+            formData.append('upload_preset', 'afit_media');
             
             const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
             const data = await res.json(); 
@@ -649,20 +667,24 @@
                 const payload = { title, category, snippet, content }; 
                 if(imgUrl) payload.image_url = imgUrl;
 
+                // 🚀 Added explicitly robust error catching here so it doesn't silently fail
                 if(id) {
                     btn.innerHTML = '<i class="fas fa-save"></i> Updating...';
-                    await supabaseClient.from('blogs').update(payload).eq('id', id); 
+                    const { error } = await supabaseClient.from('blogs').update(payload).eq('id', id); 
+                    if(error) throw error;
                     alert("Post Updated Successfully!");
                 } else {
                     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Publishing...';
-                    await supabaseClient.from('blogs').insert([payload]); 
+                    const { error } = await supabaseClient.from('blogs').insert([payload]); 
+                    if(error) throw error;
                     alert("New Post Published!");
                 }
                 
                 resetBlogForm(); 
                 loadAdminBlogs(); 
             } catch(e) { 
-                alert("Error saving post."); 
+                console.error("Save Blog Error:", e);
+                alert("Error saving post: " + (e.message || "Unknown error. Check RLS policies.")); 
             } finally { 
                 btn.innerText = "Publish Post"; 
                 btn.disabled = false; 
@@ -685,8 +707,13 @@
 
         window.deleteBlog = async function(id) { 
             if(confirm("Delete post permanently?")){ 
-                await supabaseClient.from('blogs').delete().eq('id', id); 
-                loadAdminBlogs(); 
+                try {
+                    const { error } = await supabaseClient.from('blogs').delete().eq('id', id); 
+                    if (error) throw error;
+                    loadAdminBlogs(); 
+                } catch(e) {
+                    alert("Failed to delete post: " + e.message);
+                }
             } 
         }
 
@@ -746,7 +773,9 @@
             btn.disabled = true;
 
             try {
-                await supabaseClient.from('notifications').insert([{ title, message, type, user_id: userId }]);
+                const { error } = await supabaseClient.from('notifications').insert([{ title, message, type, user_id: userId }]);
+                if (error) throw error;
+                
                 alert("Notification Broadcasted Successfully!");
                 
                 document.getElementById('notifTitle').value = "";
@@ -755,7 +784,8 @@
                 
                 loadAdminNotifications();
             } catch (e) {
-                alert("Error sending notification. Make sure the User ID is valid if you entered one.");
+                console.error(e);
+                alert("Error sending notification: " + (e.message || "Make sure User ID is valid."));
             } finally {
                 btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Notification'; 
                 btn.disabled = false;
@@ -764,10 +794,89 @@
 
         window.deleteNotification = async function(id) {
             if (confirm("Delete this notification? It will be permanently removed from user inboxes.")) {
-                await supabaseClient.from('notifications').delete().eq('id', id);
-                loadAdminNotifications();
+                try {
+                    const { error } = await supabaseClient.from('notifications').delete().eq('id', id);
+                    if (error) throw error;
+                    loadAdminNotifications();
+                } catch(e) {
+                    alert("Failed to delete notification: " + e.message);
+                }
             }
         };
+
+        // 7. FEATURED ITEMS MODULE
+        window.searchVendorItems = async function() {
+            const query = document.getElementById('featured-search').value.toLowerCase().trim();
+            const results = document.getElementById('featured-results');
+            if(!query) return;
+
+            results.innerHTML = '<p style="text-align:center; padding: 20px;"><i class="fas fa-spinner fa-spin" style="color: var(--brand-color);"></i> Searching vendors...</p>';
+            
+            try {
+                // 1. Find the vendor
+                const { data: vendors, error: vErr } = await supabaseClient.from('vendors')
+                    .select('id, business_name, vendor_code')
+                    .or(`business_name.ilike.%${query}%,vendor_code.ilike.%${query}%`)
+                    .limit(1);
+
+                if (vErr) throw vErr;
+                if (!vendors || vendors.length === 0) {
+                    results.innerHTML = "<p style='text-align:center; color:#ef4444; padding: 20px; background: #fef2f2; border-radius: 12px;'>No vendor found matching that search.</p>";
+                    return;
+                }
+
+                const vendor = vendors[0];
+
+                // 2. Fetch all products for this vendor
+                const { data: products, error: pErr } = await supabaseClient.from('products')
+                    .select('*')
+                    .eq('vendor_id', vendor.id)
+                    .order('created_at', { ascending: false });
+
+                if (pErr) throw pErr;
+
+                if (!products || products.length === 0) {
+                    results.innerHTML = `<h3 style="margin-bottom: 15px; font-size: 16px;">Items for ${vendor.business_name}</h3><p style='text-align:center; color:#94a3b8; padding: 20px;'>This vendor has no items posted.</p>`;
+                    return;
+                }
+
+                results.innerHTML = `<h3 style="margin-bottom: 15px; font-size: 16px;">Items for ${vendor.business_name}</h3>`;
+                
+                products.forEach(p => {
+                    const isPinned = p.is_pinned === true;
+                    const imgUrl = (p.image_urls && p.image_urls.length > 0) ? p.image_urls[0] : 'https://via.placeholder.com/100';
+                    const btnText = isPinned ? '<i class="fas fa-thumbtack"></i> Unpin Item' : '<i class="fas fa-thumbtack"></i> Pin to Top';
+                    const btnClass = isPinned ? 'btn-delete' : 'btn-approve';
+                    const badge = isPinned ? '<span class="status-badge" style="background:#eff6ff; color:#3b82f6; margin-left: 5px;">PINNED</span>' : '';
+
+                    results.innerHTML += `
+                        <div class="list-item" style="border-left: 4px solid ${isPinned ? '#3b82f6' : '#e2e8f0'};">
+                            <div style="display:flex; gap:15px; align-items: center;">
+                                <img src="${imgUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:10px; border: 1px solid var(--border);">
+                                <div style="flex:1;">
+                                    <div class="item-title" style="margin-bottom: 2px;">${p.name} ${badge}</div>
+                                    <div class="item-meta" style="margin-bottom: 0;">${p.category} • ₦${p.price}</div>
+                                </div>
+                            </div>
+                            <div class="action-row">
+                                <button class="action-btn ${btnClass}" onclick="togglePin('${p.id}', ${!isPinned})">${btnText}</button>
+                            </div>
+                        </div>`;
+                });
+
+            } catch(e) { 
+                results.innerHTML = "<p style='color:red;'>Search failed. Check console.</p>"; 
+            }
+        }
+
+        window.togglePin = async function(productId, newState) {
+            try {
+                await supabaseClient.from('products').update({ is_pinned: newState }).eq('id', productId);
+                searchVendorItems(); 
+            } catch(e) {
+                alert("Failed to pin item.");
+            }
+        }
     </script>
 </body>
 </html>

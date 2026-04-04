@@ -137,7 +137,7 @@
 
     <script src="../asset/script.js"></script>
 
-    <script>
+   <script>
         let currentUser = null;
         let savedProducts = [];
 
@@ -211,6 +211,7 @@
                 const imgUrl = (p.image_urls && p.image_urls.length > 0) ? p.image_urls[0] : 'https://via.placeholder.com/300x300?text=No+Image';
                 const fPrice = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(p.price);
 
+                // 🚀 XSS FIX: Wrap product name and category
                 grid.insertAdjacentHTML('beforeend', `
                     <div class="product-card" id="card-${p.id}" onclick="window.location.href='../product/index.html?id=${p.id}'">
                         <div class="img-wrapper">
@@ -218,8 +219,8 @@
                             <img src="${imgUrl}" class="product-img" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
                         </div>
                         <div class="product-price">${fPrice}</div>
-                        <div class="product-title">${p.name}</div>
-                        <div class="product-category">${p.category}</div>
+                        <div class="product-title">${escapeHTML(p.name)}</div>
+                        <div class="product-category">${escapeHTML(p.category)}</div>
                     </div>
                 `);
             });
@@ -249,6 +250,6 @@
                 console.error("Failed to delete from database:", err);
             }
         }
-    </script>
+</script>
 </body>
 </html>

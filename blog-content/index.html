@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Article | AFIT Digital Market</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../asset/style.css">
+
+    <style>
+        :root {
+            --brand-color: #2d8eff;
+        }
+        
+        .article-hero { width: 100%; height: 280px; object-fit: cover; background: #f8fafc; }
+        
+        .article-body { padding: 25px 20px; background: white; margin-top: -20px; position: relative; border-radius: 24px 24px 0 0; z-index: 10; }
+        
+        .cat-badge { color: var(--brand-color); background: #eff6ff; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .article-title { font-size: 24px; font-weight: 900; color: var(--text-main); margin: 15px 0; line-height: 1.3; }
+        .article-meta { display: flex; gap: 15px; color: var(--text-muted); font-size: 12px; font-weight: 600; margin-bottom: 25px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;}
+        
+        .article-content { font-size: 16px; color: #334155; line-height: 1.8; white-space: pre-wrap; margin-bottom: 40px;}
+        
+        /* Comments Section */
+        .comments-section { border-top: 5px solid #f8fafc; padding-top: 30px; }
+        .comment-card { display: flex; gap: 12px; margin-bottom: 20px; }
+        .comment-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #eee; border: 2px solid #f8fafc;}
+        .comment-bubble { background: #f8fafc; padding: 15px; border-radius: 0 16px 16px 16px; flex: 1; border: 1px solid #f1f5f9; }
+        .comment-name { font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; }
+        .comment-text { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+        .add-comment-box { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 40px; }
+        .comment-input { flex: 1; padding: 14px 15px; border-radius: 14px; border: 2px solid #e2e8f0; background: #f8fafc; outline: none; font-size: 14px; transition: 0.2s;}
+        .comment-input:focus { border-color: var(--brand-color); background: white; }
+        .send-btn { background: var(--brand-color); color: white; border: none; width: 48px; height: 48px; border-radius: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; box-shadow: 0 4px 10px rgba(45, 142, 255, 0.3);}
+
+        /* More Blogs Section */
+        .more-blogs-section { background: #f8fafc; padding: 30px 20px; }
+        .section-title { font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 20px; }
+        
+        .small-blog-card { background: white; border-radius: 16px; padding: 12px; display: flex; gap: 15px; margin-bottom: 15px; border: 1px solid #f1f5f9; box-shadow: 0 4px 10px rgba(0,0,0,0.02); cursor: pointer; }
+        .small-blog-card img { width: 80px; height: 80px; border-radius: 10px; object-fit: cover; }
+        .sbc-title { font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .sbc-meta { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+
+        /* SKELETON LOADER STYLES */
+        .sk-shimmer { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .sk-hero { width: 100%; height: 280px; }
+        .sk-badge { width: 60px; height: 22px; border-radius: 8px; margin-bottom: 15px; }
+        .sk-title { width: 90%; height: 30px; border-radius: 8px; margin-bottom: 10px; }
+        .sk-title-2 { width: 70%; height: 30px; border-radius: 8px; margin-bottom: 25px; }
+        .sk-meta { width: 150px; height: 15px; border-radius: 4px; margin-bottom: 30px; }
+        .sk-text { width: 100%; height: 16px; border-radius: 4px; margin-bottom: 12px; }
+        .sk-text-short { width: 80%; height: 16px; border-radius: 4px; margin-bottom: 12px; }
+
+        /* ========================================= */
+        /* 🌙 DARK MODE FIXES                        */
+        /* ========================================= */
+        body.dark-mode { background-color: #020617 !important; }
+        body.dark-mode .app-container { background: #0f172a !important; }
+        body.dark-mode .header { background: rgba(15,23,42,0.8) !important; border-bottom-color: #334155 !important; }
+        body.dark-mode .article-body { background: #0f172a !important; }
+        body.dark-mode .article-title { color: #f1f5f9 !important; }
+        body.dark-mode .article-meta { border-bottom-color: #334155 !important; }
+        body.dark-mode .article-content { color: #cbd5e1 !important; }
+        
+        body.dark-mode .comments-section { border-top-color: #1e293b !important; }
+        body.dark-mode .comment-bubble { background: #1e293b !important; border-color: #334155 !important; }
+        body.dark-mode .comment-name { color: #f1f5f9 !important; }
+        body.dark-mode .comment-text { color: #cbd5e1 !important; }
+        
+        body.dark-mode .comment-input { background: #1e293b !important; border-color: #334155 !important; color: white; }
+        body.dark-mode .comment-input:focus { border-color: var(--brand-color) !important; }
+        
+        body.dark-mode .more-blogs-section { background: #020617 !important; }
+        body.dark-mode .section-title { color: #f1f5f9 !important; }
+        body.dark-mode .small-blog-card { background: #1e293b !important; border-color: #334155 !important; }
+        body.dark-mode .sbc-title { color: #f1f5f9 !important; }
+        
+        body.dark-mode .cat-badge { background: rgba(45, 142, 255, 0.1) !important; }
+        body.dark-mode .sk-shimmer { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%) !important; background-size: 200% 100% !important; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div class="header" style="position: absolute; top: 0; left: 0; width: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent); border: none; padding: 20px; z-index: 20;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button onclick="window.history.back()" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); border: none; width: 40px; height: 40px; border-radius: 50%; color: white; font-size: 18px; cursor: pointer;"><i class="fas fa-arrow-left"></i></button>
+                <button id="shareTopBtn" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); border: none; width: 40px; height: 40px; border-radius: 50%; color: white; font-size: 16px; cursor: pointer; display: none;"><i class="fas fa-share-alt"></i></button>
+            </div>
+        </div>
+
+        <div id="skeleton-content">
+            <div class="sk-shimmer sk-hero"></div>
+            <div class="article-body">
+                <div class="sk-shimmer sk-badge"></div>
+                <div class="sk-shimmer sk-title"></div>
+                <div class="sk-shimmer sk-title-2"></div>
+                <div class="sk-shimmer sk-meta"></div>
+                
+                <div class="sk-shimmer sk-text"></div>
+                <div class="sk-shimmer sk-text"></div>
+                <div class="sk-shimmer sk-text"></div>
+                <div class="sk-shimmer sk-text-short"></div>
+                <div style="height: 20px;"></div>
+                <div class="sk-shimmer sk-text"></div>
+                <div class="sk-shimmer sk-text-short"></div>
+            </div>
+        </div>
+
+        <div id="real-content" style="display: none;">
+            <img src="" id="articleImg" class="article-hero" onerror="this.src='https://via.placeholder.com/600x300'">
+
+            <div class="article-body">
+                <span class="cat-badge" id="articleCat">News</span>
+                <h1 class="article-title" id="articleTitle">Loading Article...</h1>
+                <div class="article-meta">
+                    <span id="articleDate"><i class="far fa-calendar-alt"></i> --</span>
+                    <span id="articleViews"><i class="far fa-eye"></i> -- Views</span>
+                </div>
+
+                <div class="article-content" id="articleContent"></div>
+
+                <div class="comments-section">
+                    <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 20px;">Comments</h3>
+                    
+                    <div id="commentsList">
+                        <p style="color: #94a3b8; font-size: 13px;"><i class="fas fa-spinner fa-spin"></i> Loading comments...</p>
+                    </div>
+
+                    <div class="add-comment-box">
+                        <input type="text" id="commentInput" class="comment-input" placeholder="Share your thoughts...">
+                        <button class="send-btn" onclick="postComment()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="more-blogs-section">
+            <h3 class="section-title">See More News</h3>
+            <div id="more-blogs-list">
+                <p style="color: #94a3b8; font-size: 13px;">Loading more posts...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../asset/script.js"></script>
+
+    <script>
+    let currentUser = null;
+    let currentBlogId = null;
+    let blogData = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) currentUser = session.user;
+        
+        loadArticle();
+    });
+
+    function createSlug(title) {
+        return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    }
+
+    async function loadArticle() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const postParam = urlParams.get('post') || urlParams.get('id'); 
+        
+        if (!postParam) {
+            document.getElementById('skeleton-content').style.display = 'none';
+            document.getElementById('real-content').style.display = 'block';
+            document.getElementById('articleTitle').innerText = "Article Not Found";
+            return;
+        }
+
+        currentBlogId = postParam.includes('--') ? postParam.split('--').pop() : postParam;
+
+        try {
+            const { data, error } = await supabaseClient
+                .from('blogs')
+                .select('*')
+                .eq('id', currentBlogId)
+                .single();
+
+            if (error) throw error;
+            blogData = data;
+
+            // Update DOM (innerText naturally blocks XSS)
+            document.title = `${data.title} | AFIT Digital Market`;
+            document.getElementById('articleImg').src = data.image_url || 'https://via.placeholder.com/600x300';
+            document.getElementById('articleCat').innerText = data.category || 'News';
+            document.getElementById('articleTitle').innerText = data.title;
+            document.getElementById('articleDate').innerHTML = `<i class="far fa-calendar-alt"></i> ${new Date(data.created_at).toLocaleDateString()}`;
+            
+            // 🚀 XSS FIX: Escape the article content BEFORE adding the <br> tags!
+            document.getElementById('articleContent').innerHTML = escapeHTML(data.content).replace(/\n/g, '<br>');
+
+            // Setup Share Button
+            const shareBtn = document.getElementById('shareTopBtn');
+            shareBtn.style.display = 'block';
+            shareBtn.onclick = () => shareBlog(data.id, data.title, data.snippet);
+
+            // Handle Views
+            const viewed = JSON.parse(localStorage.getItem('viewed_blogs') || '[]');
+            if (!viewed.includes(currentBlogId)) {
+                viewed.push(currentBlogId);
+                localStorage.setItem('viewed_blogs', JSON.stringify(viewed));
+                
+                const newViewCount = (data.views || 0) + 1;
+                document.getElementById('articleViews').innerHTML = `<i class="far fa-eye"></i> ${newViewCount} Views`;
+                await supabaseClient.from('blogs').update({ views: newViewCount }).eq('id', currentBlogId);
+            } else {
+                document.getElementById('articleViews').innerHTML = `<i class="far fa-eye"></i> ${data.views || 0} Views`;
+            }
+
+            document.getElementById('skeleton-content').style.display = 'none';
+            document.getElementById('real-content').style.display = 'block';
+
+            loadComments();
+            loadMoreBlogs();
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('skeleton-content').style.display = 'none';
+            document.getElementById('real-content').style.display = 'block';
+            document.getElementById('articleTitle').innerText = "Error loading article.";
+        }
+    }
+
+    // --- COMMENTS LOGIC ---
+    async function loadComments() {
+        const list = document.getElementById('commentsList');
+        try {
+            const { data, error } = await supabaseClient
+                .from('blog_comments')
+                .select('comment_text, created_at, profiles(full_name, avatar_url)')
+                .eq('blog_id', currentBlogId)
+                .order('created_at', { ascending: true });
+
+            if (error) throw error;
+            list.innerHTML = "";
+
+            if (data.length === 0) {
+                list.innerHTML = '<p style="font-size:13px; color:#94a3b8; text-align: center; padding: 20px;">No comments yet. Be the first to share your thoughts!</p>';
+                return;
+            }
+
+            data.forEach(c => {
+                const name = c.profiles?.full_name || "Student";
+                const avatar = c.profiles?.avatar_url || "../img/person.png";
+                
+                // 🚀 XSS FIX: Wrap user-generated names and comments
+                list.innerHTML += `
+                    <div class="comment-card">
+                        <img src="${avatar}" class="comment-avatar" onerror="this.src='../img/person.png'">
+                        <div class="comment-bubble">
+                            <div class="comment-name">${escapeHTML(name)}</div>
+                            <div class="comment-text">${escapeHTML(c.comment_text)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (err) {
+            list.innerHTML = '<p style="color:red; font-size:13px;">Failed to load comments.</p>';
+        }
+    }
+
+    window.postComment = async function() {
+        if (!currentUser) {
+            alert("Please log in to comment.");
+            window.location.href = "../login/index.html";
+            return;
+        }
+        
+        const input = document.getElementById('commentInput');
+        const text = input.value.trim();
+        if (!text || !currentBlogId) return;
+
+        input.value = "Posting..."; 
+        input.disabled = true;
+
+        try {
+            await supabaseClient.from('blog_comments').insert([{ blog_id: currentBlogId, user_id: currentUser.id, comment_text: text }]);
+            input.value = ""; 
+            loadComments(); 
+        } catch (error) {
+            alert("Failed to post comment."); 
+            input.value = text; 
+        } finally { 
+            input.disabled = false; 
+        }
+    }
+
+    // --- SEE MORE BLOGS LOGIC ---
+    async function loadMoreBlogs() {
+        const list = document.getElementById('more-blogs-list');
+        try {
+            const { data, error } = await supabaseClient
+                .from('blogs')
+                .select('id, title, category, image_url, created_at')
+                .neq('id', currentBlogId)
+                .order('created_at', { ascending: false })
+                .limit(10);
+
+            if (error) throw error;
+            list.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                list.innerHTML = '<p style="font-size:13px; color:#94a3b8;">No other articles found.</p>';
+                return;
+            }
+
+            const shuffled = data.sort(() => 0.5 - Math.random()).slice(0, 3);
+
+            shuffled.forEach(b => {
+                const slug = createSlug(b.title);
+                const img = b.image_url || 'https://via.placeholder.com/100';
+                const date = new Date(b.created_at).toLocaleDateString();
+
+                // 🚀 XSS FIX: Escape title and category
+                list.innerHTML += `
+                    <div class="small-blog-card" onclick="window.location.href='index.html?post=${slug}--${b.id}'">
+                        <img src="${img}" onerror="this.src='https://via.placeholder.com/100'">
+                        <div>
+                            <div class="sbc-title">${escapeHTML(b.title)}</div>
+                            <div class="sbc-meta">${escapeHTML(b.category)} • ${date}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+        } catch (err) {
+            list.innerHTML = '';
+        }
+    }
+
+    window.shareBlog = function(blogId, title, snippet) {
+        const slug = createSlug(title);
+        const url = `${window.location.origin}/blog-content/index.html?post=${slug}--${blogId}`;
+        const safeSnippet = snippet ? snippet : 'Read the latest update on AFIT Digital Market.';
+        
+        const shareText = `*${title}*\n\n${safeSnippet}\n\nRead the full article:\n${url}`;
+
+        if (navigator.share) {
+            navigator.share({
+                title: "AFIT Campus News",
+                text: `*${title}*\n${safeSnippet}\n\nRead the full article on AFIT Digital Market:`,
+                url: url
+            }).catch(err => console.log('Share cancelled', err));
+        } else {
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            window.open(waUrl, '_blank');
+        }
+    }
+</script>
+</body>
+</html>

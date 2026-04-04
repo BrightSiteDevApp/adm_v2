@@ -168,7 +168,7 @@
 
     <script src="../asset/script.js"></script>
 
-    <script>
+   <script>
         const EMAILJS_PUBLIC_KEY = 'O7rbWSysI2B0z1LU7';
         const EMAILJS_SERVICE_ID = 'service_8u7t6p1';
         const EMAILJS_TEMPLATE_ID = 'template_17znkwl';
@@ -299,11 +299,12 @@
                 activeRequests.forEach(r => {
                     const fPrice = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(r.budget);
                     
+                    // 🚀 XSS FIX: Wrap product name and category
                     list.innerHTML += `
                         <div class="req-card">
                             <div>
-                                <div class="req-title">${r.product_name}</div>
-                                <div class="req-meta"><i class="fas fa-tag"></i> ${r.category}</div>
+                                <div class="req-title">${escapeHTML(r.product_name)}</div>
+                                <div class="req-meta"><i class="fas fa-tag"></i> ${escapeHTML(r.category)}</div>
                                 <div class="req-budget">Budget: ${fPrice}</div>
                             </div>
                             <button class="del-btn" onclick="deleteRequest('${r.id}')"><i class="fas fa-trash"></i> Delete</button>
@@ -390,6 +391,6 @@
                 alert("Failed to delete.");
             }
         }
-    </script>
+</script>
 </body>
 </html>

@@ -144,7 +144,7 @@
 
     <script src="../asset/script.js"></script>
 
-    <script>
+   <script>
         let currentUser = null;
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -161,7 +161,6 @@
 
         async function checkVendorAccess() {
             try {
-                // 🚀 FIX: Query user_id, not profile_id!
                 const { data: vendor, error } = await supabaseClient
                     .from('vendors')
                     .select('*')
@@ -231,7 +230,6 @@
                     const rawPhone = userProfile.phone_number || null;
                     const timeAgo = getTimeAgo(req.created_at);
 
-                    // Dynamic image block
                     let imageHTML = "";
                     if (req.image_url) {
                         imageHTML = `<img src="${req.image_url}" class="req-img" onclick="openModal('${req.image_url}')" alt="Reference Image">`;
@@ -240,6 +238,7 @@
                     let waButtonHTML = "";
                     if (rawPhone) {
                         const cleanPhone = formatPhoneNumber(rawPhone);
+                        // We do NOT use escapeHTML here because URLs need actual characters (like '&' and ''' ), not HTML entities
                         const prefilledMessage = encodeURIComponent(`Hi ${customerName}, I am a vendor on AFIT Digital Market. I saw your request for '${req.product_name}' (Budget: ${fPrice}) and I can fulfill it!`);
                         const waLink = `https://wa.me/${cleanPhone}?text=${prefilledMessage}`;
                         
@@ -248,24 +247,25 @@
                         waButtonHTML = `<button class="wa-btn disabled" disabled><i class="fas fa-phone-slash"></i> No Number Provided</button>`;
                     }
 
+                    // 🚀 XSS FIX: Escape title, category, description, and customer name
                     container.innerHTML += `
                         <div class="req-card">
                             <div class="req-header">
-                                <div class="req-title">${req.product_name}</div>
+                                <div class="req-title">${escapeHTML(req.product_name)}</div>
                                 <div class="req-budget">${fPrice}</div>
                             </div>
                             
-                            <div class="req-cat"><i class="fas fa-tag"></i> ${req.category}</div>
+                            <div class="req-cat"><i class="fas fa-tag"></i> ${escapeHTML(req.category)}</div>
                             
                             ${imageHTML}
                             
-                            <div class="req-desc">"${req.description}"</div>
+                            <div class="req-desc">"${escapeHTML(req.description)}"</div>
                             
                             <div class="req-footer">
                                 <div class="customer-info">
                                     <i class="fas fa-user-circle" style="font-size:24px;"></i>
                                     <div>
-                                        <div style="color:var(--text-main); font-weight:700;">${customerName}</div>
+                                        <div style="color:var(--text-main); font-weight:700;">${escapeHTML(customerName)}</div>
                                         <div style="font-size:10px; font-weight:normal; color:var(--text-muted);">Posted ${timeAgo}</div>
                                     </div>
                                 </div>
@@ -282,7 +282,6 @@
             }
         }
 
-        // Modal Functions
         function openModal(imgSrc) {
             document.getElementById('modalImg').src = imgSrc;
             document.getElementById('imageModal').style.display = 'flex';
@@ -293,7 +292,6 @@
             document.getElementById('modalImg').src = '';
         }
 
-        // Close modal if user clicks outside the image
         window.onclick = function(event) {
             const modal = document.getElementById('imageModal');
             if (event.target == modal) {
@@ -323,6 +321,6 @@
             if (interval > 1) return Math.floor(interval) + " mins ago";
             return Math.floor(seconds) + " seconds ago";
         }
-    </script>
+</script>
 </body>
 </html>

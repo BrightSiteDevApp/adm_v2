@@ -7,6 +7,22 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// =========================================
+// 🛡️ SECURITY: XSS SANITIZER
+// =========================================
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.toString().replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag])
+    );
+}
+
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -49,7 +65,7 @@ async function checkGlobalBadges() {
     const uid = session.user.id;
 
     try {
-        // Check Unread Messages in the new 'chats' table
+        // 1. Check Unread Messages in the 'chats' table
         const { data: chats } = await supabaseClient.from('chats')
             .select('customer_id, vendor_id, unread_by_customer, unread_by_vendor')
             .or(`customer_id.eq.${uid},vendor_id.eq.${uid}`);
@@ -64,15 +80,23 @@ async function checkGlobalBadges() {
             }
         }
 
-        // Check Notifications in the new 'notifications' table
+        // 2. Check Unread Notifications (Both Private & Global Broadcasts)
+        const lastClearedTime = new Date(localStorage.getItem('notifs_cleared_time') || '2000-01-01');
+        
         const { data: notifs } = await supabaseClient.from('notifications')
-            .select('id')
-            .eq('user_id', uid)
-            .eq('is_read', false)
-            .limit(1);
+            .select('user_id, is_read, created_at')
+            .or(`user_id.eq.${uid},user_id.is.null`);
             
-        if (notifs && notifs.length > 0) {
-            document.querySelectorAll('.notify-dot').forEach(dot => dot.style.display = 'block');
+        if (notifs) {
+            const hasUnreadNotif = notifs.some(n => {
+                const notifTime = new Date(n.created_at);
+                // It is unread if it was created after the last cleared time AND is not explicitly marked as read
+                return (notifTime > lastClearedTime) && (n.is_read !== true);
+            });
+
+            if (hasUnreadNotif) {
+                document.querySelectorAll('.notify-dot').forEach(dot => dot.style.display = 'block');
+            }
         }
         
     } catch (e) { console.error("Badge check failed:", e); }
@@ -105,8 +129,9 @@ async function fetchItems() {
     try {
         const { data: products, error } = await supabaseClient
             .from('products')
-            .select('id, name, price, image_urls, category')
+            .select('id, name, price, image_urls, category, is_pinned')
             .eq('status', 'Active')
+            .order('is_pinned', { ascending: false }) 
             .limit(100);
 
         if (error) throw error;
@@ -117,15 +142,21 @@ async function fetchItems() {
             return;
         }
 
-        const randomItems = shuffleArray(products).slice(0, 50);
+        const pinnedItems = products.filter(p => p.is_pinned === true);
+        let unpinnedItems = products.filter(p => p.is_pinned !== true);
+        
+        unpinnedItems = shuffleArray(unpinnedItems);
+        const finalItemsToDisplay = [...pinnedItems, ...unpinnedItems].slice(0, 50);
 
-        randomItems.forEach(p => {
-            // Updated to handle the PostgreSQL text[] array type
+        finalItemsToDisplay.forEach(p => {
             const imgUrl = (p.image_urls && p.image_urls.length > 0) ? p.image_urls[0] : 'https://via.placeholder.com/300?text=No+Image';
             const formattedPrice = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(p.price);
+            
+            const pinBadge = p.is_pinned ? `<div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 3px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; backdrop-filter: blur(4px);">Featured</div>` : '';
 
             grid.innerHTML += `
-                <div class="card" onclick="window.location.href='product/index.html?id=${p.id}'">
+                <div class="card" style="position: relative;" onclick="window.location.href='product/index.html?id=${p.id}'">
+                    ${pinBadge}
                     <img src="${imgUrl}" class="card-img" onerror="this.src='https://via.placeholder.com/300'">
                     <div class="card-price">${formattedPrice}</div>
                     <div style="width: 100%; overflow: hidden;">
@@ -186,7 +217,7 @@ async function fetchVendors() {
 }
 
 // =========================================
-// --- FETCH REVIEWS (Joined with Profiles) ---
+// --- FETCH REVIEWS ---
 // =========================================
 async function fetchReviews() {
     const slider = document.getElementById('reviews-slider');
@@ -194,7 +225,7 @@ async function fetchReviews() {
     try {
         const { data, error } = await supabaseClient
             .from('reviews')
-            .select('rating, review_text, profiles(full_name, avatar_url)')
+            .select('rating, review_text, legacy_name, legacy_avatar, profiles(full_name, avatar_url)')
             .eq('status', 'approved')
             .limit(20);
 
@@ -209,8 +240,8 @@ async function fetchReviews() {
         const randomReviews = shuffleArray(data).slice(0, 5);
 
         randomReviews.forEach(r => {
-            const name = r.profiles?.full_name || "Student";
-            const avatar = r.profiles?.avatar_url || "img/person.png";
+            const name = r.profiles?.full_name || r.legacy_name || "Student";
+            const avatar = r.profiles?.avatar_url || r.legacy_avatar || "img/person.png";
             
             slider.innerHTML += `
                 <div class="review-card">
@@ -245,7 +276,7 @@ function startReviewSlider() {
 }
 
 // =========================================
-// --- FETCH BLOGS ---
+// --- FETCH BLOGS (MINI-CARDS ON HOMEPAGE) ---
 // =========================================
 async function fetchBlogs() {
     const list = document.getElementById('blog-list');
@@ -271,7 +302,7 @@ async function fetchBlogs() {
             const postDate = new Date(b.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
             list.innerHTML += `
-                <div class="blog-card" onclick="window.location.href='blogs/index.html?post=${niceSlug}'">
+                <div class="blog-card" onclick="window.location.href='blog-content/index.html?post=${niceSlug}'">
                     <img src="${imgUrl}" class="blog-img" onerror="this.src='https://via.placeholder.com/100'">
                     <div class="blog-info">
                         <div class="blog-cat-row">
@@ -318,33 +349,30 @@ function setupExpandableFooter() {
 let deferredPrompt;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-// Register the Service Worker (Must have a sw.js file in root)
+/* TEMPORARILY DISABLED SERVICE WORKER BECAUSE IT IS BLOCKING SUPABASE
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
+        navigator.serviceWorker.register('/sw.js')
             .then(reg => console.log('Service Worker Registered!', reg))
             .catch(err => console.log('Service Worker Registration Failed', err));
     });
 }
+*/
 
-// Catch the Android install prompt so we can trigger it from our button
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
 });
 
-// Smart Download App Function triggered by the HTML button
 window.downloadApp = async function() {
     if (isIOS) {
         const iosPopup = document.getElementById('ios-install-popup');
         if (iosPopup) {
             iosPopup.style.display = 'flex';
         } else {
-            // Fallback just in case the HTML element wasn't added correctly
             alert("To install AFIT Market on iOS:\n\n1. Tap the 'Share' icon at the bottom of Safari.\n2. Scroll down and tap 'Add to Home Screen'.");
         }
     } else if (deferredPrompt) {
-        // Android / Chrome - Show native prompt
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
@@ -352,7 +380,6 @@ window.downloadApp = async function() {
         }
         deferredPrompt = null;
     } else {
-        // Fallback if already installed or unsupported
         alert("The app is already installed on your device or your current browser doesn't support automatic installation.");
     }
 };

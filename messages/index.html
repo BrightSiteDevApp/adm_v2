@@ -202,16 +202,21 @@
                     const dotIndicator = hasUnread ? `<span style="display:inline-block; width:10px; height:10px; background:var(--brand-color); border-radius:50%; margin-right:8px;"></span>` : '';
                     const boldText = hasUnread ? 'font-weight: 800; color: var(--text-main);' : '';
 
+                    // 🚀 XSS FIX: Escape name, product, and message variables
+                    const safeDisplayName = escapeHTML(displayName);
+                    const safeProductName = escapeHTML(productData.name);
+                    const safeLastMsg = escapeHTML(lastMsg);
+
                     list.innerHTML += `
                         <div class="chat-card" onclick="window.location.href='../chats/index.html?chat_id=${chat.id}'">
                             <img src="${displayAvatar}" class="chat-avatar" onerror="this.src='https://via.placeholder.com/150'">
                             <div class="chat-info">
                                 <div class="chat-header-row">
-                                    <div class="chat-name">${displayName} ${isVerified ? '<i class="fas fa-check-circle" style="color: var(--brand-color); font-size: 11px;"></i>' : ''}</div>
+                                    <div class="chat-name">${safeDisplayName} ${isVerified ? '<i class="fas fa-check-circle" style="color: var(--brand-color); font-size: 11px;"></i>' : ''}</div>
                                     <div class="chat-time" style="${boldText}">${timeAgo}</div>
                                 </div>
-                                <div class="chat-product"><i class="fas fa-box" style="margin-right:4px;"></i>${productData.name}</div>
-                                <div class="chat-last-msg" style="${boldText}">${dotIndicator}${lastMsg}</div>
+                                <div class="chat-product"><i class="fas fa-box" style="margin-right:4px;"></i>${safeProductName}</div>
+                                <div class="chat-last-msg" style="${boldText}">${dotIndicator}${safeLastMsg}</div>
                             </div>
                         </div>
                     `;
@@ -252,6 +257,6 @@
                 return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
             }
         }
-    </script>
+</script>
 </body>
 </html>

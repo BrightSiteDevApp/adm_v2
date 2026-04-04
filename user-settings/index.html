@@ -147,7 +147,8 @@
 
         function showMsg(text, isError = false) {
             const msgBox = document.getElementById('msg-box');
-            msgBox.innerHTML = isError ? `<i class="fas fa-exclamation-triangle"></i> ${text}` : `<i class="fas fa-check-circle"></i> ${text}`;
+            // 🚀 XSS FIX: Escape the message text just in case it contains API error HTML
+            msgBox.innerHTML = isError ? `<i class="fas fa-exclamation-triangle"></i> ${escapeHTML(text)}` : `<i class="fas fa-check-circle"></i> ${escapeHTML(text)}`;
             msgBox.className = isError ? 'msg-error' : 'msg-success';
             msgBox.style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -184,12 +185,12 @@
             
             const btn = document.getElementById('save-btn');
             const newName = document.getElementById('user-name').value.trim();
+            const newPhone = document.getElementById('user-phone').value.trim();
             const pass1 = document.getElementById('new-pass').value;
             const pass2 = document.getElementById('confirm-pass').value;
 
             document.getElementById('msg-box').style.display = 'none';
 
-            // Validate Password if user is trying to change it
             if (pass1 || pass2) {
                 if (pass1.length < 6) return showMsg("Password must be at least 6 characters.", true);
                 if (pass1 !== pass2) return showMsg("Passwords do not match.", true);
@@ -201,7 +202,6 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
             try {
-                // 1. Update Name in 'profiles' table
                const { error: profileError } = await supabaseClient
                     .from('profiles')
                     .update({ full_name: newName, phone_number: newPhone })
@@ -209,7 +209,6 @@
 
                 if (profileError) throw profileError;
 
-                // 2. Update Password if provided
                 if (pass1) {
                     const { error: authError } = await supabaseClient.auth.updateUser({
                         password: pass1
@@ -219,7 +218,6 @@
 
                 showMsg("Settings updated successfully!");
                 
-                // Clear password fields so they don't accidentally save again
                 document.getElementById('new-pass').value = '';
                 document.getElementById('confirm-pass').value = '';
 
@@ -231,6 +229,6 @@
                 btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
             }
         }
-    </script>
+</script>
 </body>
 </html>

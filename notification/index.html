@@ -24,13 +24,11 @@
             position: relative; overflow: hidden; transition: 0.2s;
         }
         
-        /* 🚀 BRAND UPDATE: Subtle Blue highlight for unread messages */
         .notif-card.unread { background: #f8fbff; border-color: #bfdbfe; }
         .notif-card.unread::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 5px; background: var(--brand-color); }
 
         .notif-icon-wrapper { width: 45px; height: 45px; border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 18px; flex-shrink: 0; }
 
-        /* Icon Theming */
         .icon-system { background: #f1f5f9; color: #475569; }
         .icon-promo { background: #eff6ff; color: var(--brand-color); }
         .icon-alert { background: #fef2f2; color: #ef4444; }
@@ -125,7 +123,11 @@
 
         <div class="bottom-nav">
             <a href="../index.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
-            <a href="#" class="nav-item" onclick="requireLogin('../messages/index.html')"><i class="fas fa-comment-dots"></i><span>Messages</span></a>
+            <a href="#" class="nav-item" onclick="requireLogin('../messages/index.html')">
+                <i class="fas fa-comment-dots"></i>
+                <span class="red-dot msg-dot"></span>
+                <span>Messages</span>
+            </a>
             <div class="nav-fab" onclick="requireLogin('../add-product/index.html')"><i class="fas fa-plus"></i></div>
             <a href="#" class="nav-item" onclick="requireLogin('../saved/index.html')"><i class="fas fa-heart"></i><span>Saved</span></a>
             <a href="../account/index.html" class="nav-item"><i class="fas fa-user"></i><span>Account</span></a>
@@ -145,8 +147,6 @@
             }
             
             await fetchNotifications();
-            
-            localStorage.setItem('last_notif_seen_time', new Date().toISOString());
         });
 
         async function requireLogin(targetUrl) {
@@ -188,15 +188,20 @@
                 list.innerHTML = "";
                 data.forEach(n => {
                     const notifTime = new Date(n.created_at);
-                    const isUnread = notifTime > lastClearedTime;
+                    
+                    const isUnread = notifTime > lastClearedTime && n.is_read !== true;
                     const unreadClass = isUnread ? "unread" : "";
                     
                     const timeString = formatTime(notifTime);
                     const { icon, bgClass } = getIconConfig(n.type);
 
-                    const words = n.message.split(' ');
+                    // 🚀 XSS FIX: Escape title and message
+                    const safeTitle = escapeHTML(n.title);
+                    const safeMessage = escapeHTML(n.message);
+
+                    const words = safeMessage.split(' ');
                     let hasMore = false;
-                    let shortMsg = n.message;
+                    let shortMsg = safeMessage;
 
                     if (words.length > 20) {
                         shortMsg = words.slice(0, 20).join(' ') + '...';
@@ -210,12 +215,12 @@
                             </div>
                             <div class="notif-content">
                                 <div class="notif-header">
-                                    <div class="notif-title">${n.title}</div>
+                                    <div class="notif-title">${safeTitle}</div>
                                     <div class="notif-time">${timeString}</div>
                                 </div>
                                 <div class="notif-message">
                                     <span class="short-text" id="short-${n.id}">${shortMsg}</span>
-                                    <span class="full-text" id="full-${n.id}" style="display:none;">${n.message}</span>
+                                    <span class="full-text" id="full-${n.id}" style="display:none;">${safeMessage}</span>
                                     ${hasMore ? `<br><div class="read-more-btn" id="btn-${n.id}" onclick="toggleNotif('${n.id}')">Read more</div>` : ''}
                                 </div>
                             </div>
@@ -254,11 +259,26 @@
             }
         };
 
-        function markAllAsRead() {
+        async function markAllAsRead() {
             localStorage.setItem('notifs_cleared_time', new Date().toISOString());
+            
             document.querySelectorAll('.notif-card.unread').forEach(card => {
                 card.classList.remove('unread');
             });
+            
+            if (currentUser) {
+                try {
+                    await supabaseClient
+                        .from('notifications')
+                        .update({ is_read: true })
+                        .eq('user_id', currentUser.id)
+                        .eq('is_read', false);
+                } catch(e) {
+                    console.error("Failed to sync read status", e);
+                }
+            }
+            
+            document.querySelectorAll('.notify-dot').forEach(dot => dot.style.display = 'none');
         }
 
         function getIconConfig(type) {
@@ -283,6 +303,6 @@
             if (diffDays < 7) return `${diffDays}d ago`;
             return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
         }
-    </script>
+</script>
 </body>
 </html>

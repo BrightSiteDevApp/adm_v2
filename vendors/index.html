@@ -160,7 +160,7 @@
 
     <script src="../asset/script.js"></script>
 
-    <script>
+   <script>
         let allVendors = [];
         let currentDisplayList = [];
         let vendorsLoaded = 0;
@@ -187,7 +187,6 @@
         async function fetchActiveVendors() {
             document.getElementById('skeleton-loader').style.display = 'grid';
             try {
-                // 🚀 FETCHING vendor_code instead of just id
                 const { data, error } = await supabaseClient
                     .from('vendors')
                     .select('id, vendor_code, business_name, description, logo_url, subscription_plan')
@@ -240,24 +239,23 @@
                 nextBatch.forEach(v => {
                     const logoUrl = v.logo_url || 'https://via.placeholder.com/150x150?text=Logo';
                     
-                    // 🚀 USE DATABASE VENDOR CODE, or fallback if empty
                     const shortId = v.vendor_code || ("V-" + v.id.substring(0, 5).toUpperCase());
-                    
                     const safeName = v.business_name ? v.business_name : 'Verified Vendor';
                     const safeDesc = v.description || "Verified Seller on AFIT Digital Market";
 
-                    let badgeColor = "var(--brand-color)"; // Default Blue (Verified)
-                    if (v.subscription_plan === "Influencer") badgeColor = "#fbbf24"; // Gold
-                    if (v.subscription_plan === "Icon") badgeColor = "#1e293b"; // Black/Slate
+                    let badgeColor = "var(--brand-color)"; 
+                    if (v.subscription_plan === "Influencer") badgeColor = "#fbbf24"; 
+                    if (v.subscription_plan === "Icon") badgeColor = "#1e293b"; 
 
+                    // 🚀 XSS FIX: Wrapped all user-generated fields
                     grid.insertAdjacentHTML('beforeend', `
                         <div class="vendor-card" onclick="window.location.href='profile/index.html?id=${v.id}'">
                             <div class="vendor-banner"></div>
                             <img src="${logoUrl}" class="vendor-logo" onerror="this.src='https://via.placeholder.com/150x150?text=Logo'">
                             <div class="vendor-info-wrapper">
-                                <div><span class="vendor-id">${shortId}</span></div>
-                                <div class="vendor-name">${safeName} <i class="fas fa-check-circle" style="color: ${badgeColor};"></i></div>
-                                <div class="vendor-desc">${safeDesc}</div>
+                                <div><span class="vendor-id">${escapeHTML(shortId)}</span></div>
+                                <div class="vendor-name">${escapeHTML(safeName)} <i class="fas fa-check-circle" style="color: ${badgeColor};"></i></div>
+                                <div class="vendor-desc">${escapeHTML(safeDesc)}</div>
                             </div>
                             <button class="visit-btn">Visit Store</button>
                         </div>
@@ -301,6 +299,6 @@
 
             return false;
         }
-    </script>
+</script>
 </body>
 </html>
