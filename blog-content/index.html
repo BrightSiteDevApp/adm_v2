@@ -32,24 +32,36 @@
         .comment-name { font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; }
         .comment-text { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
 
-        .add-comment-box { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 40px; }
-        .comment-input { flex: 1; padding: 14px 15px; border-radius: 14px; border: 2px solid #e2e8f0; background: #f8fafc; outline: none; font-size: 14px; transition: 0.2s;}
+        /* 🚀 FIX: Responsive Input Layout */
+        .add-comment-box { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 40px; width: 100%; box-sizing: border-box; }
+        .comment-input { 
+            flex: 1; 
+            min-width: 0; /* 🚀 Stops the input from shoving the button off-screen */
+            box-sizing: border-box; /* 🚀 Ensures padding stays inside the box */
+            padding: 14px 15px; 
+            border-radius: 14px; 
+            border: 2px solid #e2e8f0; 
+            background: #f8fafc; 
+            outline: none; 
+            font-size: 14px; 
+            transition: 0.2s;
+        }
         .comment-input:focus { border-color: var(--brand-color); background: white; }
         .send-btn { 
-    background: var(--brand-color); 
-    color: white; 
-    border: none; 
-    width: 48px; 
-    height: 48px; 
-    border-radius: 14px; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    cursor: pointer; 
-    font-size: 16px; 
-    box-shadow: 0 4px 10px rgba(45, 142, 255, 0.3);
-    flex-shrink: 0; /* 🚀 THIS IS THE FIX */
-}
+            background: var(--brand-color); 
+            color: white; 
+            border: none; 
+            width: 48px; 
+            height: 48px; 
+            border-radius: 14px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            cursor: pointer; 
+            font-size: 16px; 
+            box-shadow: 0 4px 10px rgba(45, 142, 255, 0.3);
+            flex-shrink: 0; /* Protects button shape */
+        }
 
         /* More Blogs Section */
         .more-blogs-section { background: #f8fafc; padding: 30px 20px; }
@@ -105,7 +117,7 @@
         
         <div class="header" style="position: absolute; top: 0; left: 0; width: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent); border: none; padding: 20px; z-index: 20;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button onclick="window.history.back()" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); border: none; width: 40px; height: 40px; border-radius: 50%; color: white; font-size: 18px; cursor: pointer;"><i class="fas fa-arrow-left"></i></button>
+                <button onclick="smartBack()" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); border: none; width: 40px; height: 40px; border-radius: 50%; color: white; font-size: 18px; cursor: pointer;"><i class="fas fa-arrow-left"></i></button>
                 <button id="shareTopBtn" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); border: none; width: 40px; height: 40px; border-radius: 50%; color: white; font-size: 16px; cursor: pointer; display: none;"><i class="fas fa-share-alt"></i></button>
             </div>
         </div>
@@ -172,6 +184,16 @@
     let currentBlogId = null;
     let blogData = null;
 
+    // 🚀 NEW: Smart Back Button Logic
+    window.smartBack = function() {
+        // If the user came directly from a link (no history) or from outside AFIT, go to home
+        if (document.referrer === "" || document.referrer.includes('wa.me') || !document.referrer.includes(window.location.host)) {
+            window.location.href = "../index.html"; 
+        } else {
+            window.history.back(); // Standard back navigation
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session) currentUser = session.user;
@@ -213,7 +235,7 @@
             document.getElementById('articleTitle').innerText = data.title;
             document.getElementById('articleDate').innerHTML = `<i class="far fa-calendar-alt"></i> ${new Date(data.created_at).toLocaleDateString()}`;
             
-            // 🚀 XSS FIX: Escape the article content BEFORE adding the <br> tags!
+            // XSS FIX: Escape the article content BEFORE adding the <br> tags!
             document.getElementById('articleContent').innerHTML = escapeHTML(data.content).replace(/\n/g, '<br>');
 
             // Setup Share Button
@@ -270,7 +292,7 @@
                 const name = c.profiles?.full_name || "Student";
                 const avatar = c.profiles?.avatar_url || "../img/person.png";
                 
-                // 🚀 XSS FIX: Wrap user-generated names and comments
+                // XSS FIX: Wrap user-generated names and comments
                 list.innerHTML += `
                     <div class="comment-card">
                         <img src="${avatar}" class="comment-avatar" onerror="this.src='../img/person.png'">
@@ -338,7 +360,7 @@
                 const img = b.image_url || 'https://via.placeholder.com/100';
                 const date = new Date(b.created_at).toLocaleDateString();
 
-                // 🚀 XSS FIX: Escape title and category
+                // XSS FIX: Escape title and category
                 list.innerHTML += `
                     <div class="small-blog-card" onclick="window.location.href='index.html?post=${slug}--${b.id}'">
                         <img src="${img}" onerror="this.src='https://via.placeholder.com/100'">
@@ -355,15 +377,12 @@
         }
     }
 
-    // 🚀 NEW URL GENERATOR FOR BULLETPROOF SHARING
     window.shareBlog = function(blogId, title, snippet) {
         const slug = createSlug(title);
-        
-        // Grab the exact URL the user is currently on, strip off any existing query parameters, and add the clean new ones.
         const baseUrl = window.location.href.split('?')[0]; 
         const shareUrl = `${baseUrl}?post=${slug}--${blogId}`;
-        
         const safeSnippet = snippet ? snippet : 'Read the latest update on AFIT Digital Market.';
+        
         const shareText = `*${title}*\n\n${safeSnippet}\n\nRead the full article:\n${shareUrl}`;
 
         if (navigator.share) {
@@ -377,6 +396,6 @@
             window.open(waUrl, '_blank');
         }
     }
-</script>
+    </script>
 </body>
 </html>
