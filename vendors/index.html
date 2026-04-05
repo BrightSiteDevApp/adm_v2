@@ -17,49 +17,44 @@
         .search-container:focus-within { border-color: var(--brand-color); background: white; }
         .search-container input[type="search"] { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; color: var(--text-main); -webkit-appearance: none; }
         
-        /* 🚀 NEW: Horizontal List Layout (Matches Search Page) */
-        .vendor-grid { display: flex; flex-direction: column; gap: 15px; padding: 0 20px; }
+        /* 🚀 RESTORED: 2x2 Grid Layout for Vendors */
+        .vendor-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 20px; }
         
         .vendor-card {
-            background: white; border-radius: 16px; padding: 15px;
+            background: white; border-radius: 16px; padding: 20px 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e2e8f0;
-            display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            cursor: pointer; transition: 0.2s; height: 100%; justify-content: center;
         }
         .vendor-card:active { transform: scale(0.98); }
         
         .vendor-logo {
-            width: 55px; height: 55px; border-radius: 50%; object-fit: cover;
-            border: 2px solid #f1f5f9; flex-shrink: 0;
+            width: 60px; height: 60px; border-radius: 50%; object-fit: cover;
+            border: 2px solid #f1f5f9; flex-shrink: 0; margin-bottom: 10px;
         }
         
-        .vendor-info-wrapper { flex: 1; min-width: 0; }
-        
-        .vendor-id { 
-            background: #eff6ff; color: var(--brand-color); font-size: 10px; padding: 3px 8px; 
-            border-radius: 8px; font-family: monospace; font-weight: 800; margin-bottom: 6px; 
-            display: inline-block; border: 1px solid #bfdbfe;
-        }
+        .vendor-info-wrapper { width: 100%; min-width: 0; }
         
         .vendor-name { 
-            font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
+            font-size: 13px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; 
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         
         .vendor-desc { 
-            font-size: 12px; color: var(--text-muted); line-height: 1.4; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-size: 11px; color: var(--text-muted); line-height: 1.4; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-transform: uppercase;
         }
 
-        /* Skeleton Loaders (Updated for Horizontal Layout) */
+        /* Skeleton Loaders for 2x2 Grid */
         .sk-shimmer { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         
-        .sk-card { background: white; border-radius: 16px; padding: 15px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; }
-        .sk-v-avatar { width: 55px; height: 55px; border-radius: 50%; flex-shrink: 0; }
+        .sk-card { background: white; border-radius: 16px; padding: 20px 10px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .sk-v-avatar { width: 60px; height: 60px; border-radius: 50%; flex-shrink: 0; margin-bottom: 10px; }
         .sk-line { height: 12px; }
-        .sk-line.short { width: 40%; margin-bottom: 8px;}
-        .sk-line.medium { width: 70%; margin-bottom: 8px;}
-        .sk-line.long { width: 90%; }
+        .sk-line.medium { width: 70%; margin-bottom: 6px;}
+        .sk-line.short { width: 40%; }
 
         .end-message { text-align: center; padding: 30px 20px 40px; color: #94a3b8; font-size: 13px; font-weight: 600; display: none; }
         .end-message i { font-size: 24px; color: #e2e8f0; margin-bottom: 8px; display: block; }
@@ -77,7 +72,6 @@
 
         body.dark-mode .vendor-card { background: #1e293b !important; border-color: #334155 !important; }
         body.dark-mode .vendor-logo { border-color: #334155 !important; background: #0f172a !important; }
-        body.dark-mode .vendor-id { background: #0f172a !important; color: var(--brand-color) !important; border-color: #334155 !important; }
         body.dark-mode .vendor-name { color: #f1f5f9 !important; }
         body.dark-mode .vendor-desc { color: #cbd5e1 !important; }
 
@@ -87,7 +81,7 @@
         body.dark-mode .sk-shimmer { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%) !important; background-size: 200% 100% !important; }
         
         /* Nav FAB override for dark mode */
-        body.dark-mode .nav-fab { background: #1e293b !important; border-color: var(--brand-color) !important; color: var(--brand-color) !important; }
+        body.dark-mode .nav-fab { background: var(--brand-color) !important; border: none !important; color: white !important; }
     </style>
 </head>
 <body>
@@ -102,7 +96,7 @@
             
             <form class="search-container" action="#" onsubmit="return triggerSearch(event)">
                 <i class="fas fa-search" style="color: #94a3b8; margin-right: 10px;" onclick="triggerSearch(event)"></i>
-                <input type="search" id="vendor-search" placeholder="Search brands, IDs, or categories...">
+                <input type="search" id="vendor-search" placeholder="Search brands, categories...">
             </form>
         </div>
 
@@ -111,30 +105,12 @@
             <div class="vendor-grid" id="main-vendor-grid" style="padding-top: 15px;"></div>
 
             <div class="vendor-grid" id="skeleton-loader" style="padding-top: 15px; display: none;">
-                <div class="sk-card">
-                    <div class="sk-shimmer sk-v-avatar"></div>
-                    <div style="flex:1;">
-                        <div class="sk-shimmer sk-line short"></div>
-                        <div class="sk-shimmer sk-line medium"></div>
-                        <div class="sk-shimmer sk-line long"></div>
-                    </div>
-                </div>
-                <div class="sk-card">
-                    <div class="sk-shimmer sk-v-avatar"></div>
-                    <div style="flex:1;">
-                        <div class="sk-shimmer sk-line short"></div>
-                        <div class="sk-shimmer sk-line medium"></div>
-                        <div class="sk-shimmer sk-line long"></div>
-                    </div>
-                </div>
-                <div class="sk-card">
-                    <div class="sk-shimmer sk-v-avatar"></div>
-                    <div style="flex:1;">
-                        <div class="sk-shimmer sk-line short"></div>
-                        <div class="sk-shimmer sk-line medium"></div>
-                        <div class="sk-shimmer sk-line long"></div>
-                    </div>
-                </div>
+                <div class="sk-card"><div class="sk-shimmer sk-v-avatar"></div><div class="sk-shimmer sk-line medium"></div><div class="sk-shimmer sk-line short"></div></div>
+                <div class="sk-card"><div class="sk-shimmer sk-v-avatar"></div><div class="sk-shimmer sk-line medium"></div><div class="sk-shimmer sk-line short"></div></div>
+                <div class="sk-card"><div class="sk-shimmer sk-v-avatar"></div><div class="sk-shimmer sk-line medium"></div><div class="sk-shimmer sk-line short"></div></div>
+                <div class="sk-card"><div class="sk-shimmer sk-v-avatar"></div><div class="sk-shimmer sk-line medium"></div><div class="sk-shimmer sk-line short"></div></div>
+                <div class="sk-card"><div class="sk-shimmer sk-v-avatar"></div><div class="sk-shimmer sk-line medium"></div><div class="sk-shimmer sk-line short"></div></div>
+                <div class="sk-card"><div class="sk-shimmer sk-v-avatar"></div><div class="sk-shimmer sk-line medium"></div><div class="sk-shimmer sk-line short"></div></div>
             </div>
 
             <div id="scroll-sentinel" style="height: 1px; width: 100%;"></div>
@@ -153,7 +129,7 @@
                 <span class="red-dot msg-dot"></span>
                 <span>Messages</span>
             </a>
-           <div class="nav-fab" onclick="requireLogin('../add-product/index.html')" style="background: var(--brand-color); color: white; border: none; box-shadow: 0 4px 15px rgba(45, 142, 255, 0.4);"><i class="fas fa-plus"></i></div>
+            <div class="nav-fab" onclick="requireLogin('../add-product/index.html')" style="background: var(--brand-color); color: white; border: none; box-shadow: 0 4px 15px rgba(45, 142, 255, 0.4);"><i class="fas fa-plus"></i></div>
             <a href="#" class="nav-item" onclick="requireLogin('../saved/index.html')"><i class="fas fa-heart"></i><span>Saved</span></a>
             <a href="#" class="nav-item" onclick="requireLogin('../account/index.html')"><i class="fas fa-user"></i><span>Account</span></a>
         </div>
@@ -178,6 +154,7 @@
             else window.location.href = "../login/index.html";
         }
 
+        // 🚀 This shuffles the array randomly every time it runs
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -187,7 +164,7 @@
         }
 
         async function fetchActiveVendors() {
-            document.getElementById('skeleton-loader').style.display = 'flex';
+            document.getElementById('skeleton-loader').style.display = 'grid';
             try {
                 const { data, error } = await supabaseClient
                     .from('vendors')
@@ -196,6 +173,7 @@
 
                 if (error) throw error;
 
+                // 🚀 Shuffles the vendors right after fetching them from the database!
                 allVendors = shuffleArray(data);
                 currentDisplayList = [...allVendors];
                 
@@ -204,7 +182,7 @@
 
             } catch (error) {
                 document.getElementById('skeleton-loader').style.display = 'none';
-                document.getElementById('main-vendor-grid').innerHTML = `<p style="text-align:center; color:red; padding: 40px;">Failed to load vendors.</p>`;
+                document.getElementById('main-vendor-grid').innerHTML = `<p style="grid-column:span 2; text-align:center; color:red; padding: 40px;">Failed to load vendors.</p>`;
             }
         }
 
@@ -217,7 +195,7 @@
             
             if (currentDisplayList.length === 0) {
                 grid.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: #94a3b8;">
+                    <div style="grid-column: span 2; text-align: center; padding: 60px 20px; color: #94a3b8;">
                         <i class="fas fa-store-slash" style="font-size: 50px; margin-bottom: 15px; color: #cbd5e1;"></i>
                         <h3 style="font-size: 16px; color: #1e293b; margin: 0 0 5px;">No vendor found</h3>
                         <p style="font-size: 13px;">Try adjusting your search terms.</p>
@@ -230,7 +208,7 @@
             if (vendorsLoaded >= currentDisplayList.length) return;
 
             isFetchingBatch = true;
-            skeleton.style.display = 'flex';
+            skeleton.style.display = 'grid';
 
             setTimeout(() => {
                 skeleton.style.display = 'none';
@@ -240,22 +218,21 @@
 
                 nextBatch.forEach(v => {
                     const logoUrl = v.logo_url || 'https://via.placeholder.com/100x100?text=Logo';
-                    
-                    const shortId = v.vendor_code || ("V-" + v.id.substring(0, 5).toUpperCase());
                     const safeName = v.business_name ? v.business_name : 'Verified Vendor';
-                    const safeDesc = v.description || "Verified Seller on AFIT Digital Market";
+                    
+                    // Fallback to "Vendor" if no description, keeps the UI clean
+                    const safeDesc = v.description || "Vendor";
 
                     let badgeColor = "var(--brand-color)"; 
                     if (v.subscription_plan === "Influencer") badgeColor = "#fbbf24"; 
                     if (v.subscription_plan === "Icon") badgeColor = "#1e293b"; 
 
-                    // 🚀 XSS FIX: Wrap user-generated fields & Use Horizontal Layout
+                    // 🚀 XSS FIX: Wrap user-generated fields & Use Box Layout
                     grid.insertAdjacentHTML('beforeend', `
                         <div class="vendor-card" onclick="window.location.href='profile/index.html?id=${v.id}'">
                             <img src="${logoUrl}" class="vendor-logo" onerror="this.src='https://via.placeholder.com/100x100?text=Logo'">
                             <div class="vendor-info-wrapper">
-                                <div><span class="vendor-id">${escapeHTML(shortId)}</span></div>
-                                <div class="vendor-name">${escapeHTML(safeName)} <i class="fas fa-check-circle" style="color: ${badgeColor}; font-size: 12px;"></i></div>
+                                <div class="vendor-name">${escapeHTML(safeName)} <i class="fas fa-check-circle" style="color: ${badgeColor}; font-size: 11px;"></i></div>
                                 <div class="vendor-desc">${escapeHTML(safeDesc)}</div>
                             </div>
                         </div>
@@ -299,6 +276,6 @@
 
             return false;
         }
-</script>
+    </script>
 </body>
 </html>
