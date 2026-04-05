@@ -35,7 +35,21 @@
         .add-comment-box { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 40px; }
         .comment-input { flex: 1; padding: 14px 15px; border-radius: 14px; border: 2px solid #e2e8f0; background: #f8fafc; outline: none; font-size: 14px; transition: 0.2s;}
         .comment-input:focus { border-color: var(--brand-color); background: white; }
-        .send-btn { background: var(--brand-color); color: white; border: none; width: 48px; height: 48px; border-radius: 14px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 16px; box-shadow: 0 4px 10px rgba(45, 142, 255, 0.3);}
+        .send-btn { 
+    background: var(--brand-color); 
+    color: white; 
+    border: none; 
+    width: 48px; 
+    height: 48px; 
+    border-radius: 14px; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    cursor: pointer; 
+    font-size: 16px; 
+    box-shadow: 0 4px 10px rgba(45, 142, 255, 0.3);
+    flex-shrink: 0; /* 🚀 THIS IS THE FIX */
+}
 
         /* More Blogs Section */
         .more-blogs-section { background: #f8fafc; padding: 30px 20px; }
@@ -341,18 +355,22 @@
         }
     }
 
+    // 🚀 NEW URL GENERATOR FOR BULLETPROOF SHARING
     window.shareBlog = function(blogId, title, snippet) {
         const slug = createSlug(title);
-        const url = `${window.location.origin}/blog-content/index.html?post=${slug}--${blogId}`;
-        const safeSnippet = snippet ? snippet : 'Read the latest update on AFIT Digital Market.';
         
-        const shareText = `*${title}*\n\n${safeSnippet}\n\nRead the full article:\n${url}`;
+        // Grab the exact URL the user is currently on, strip off any existing query parameters, and add the clean new ones.
+        const baseUrl = window.location.href.split('?')[0]; 
+        const shareUrl = `${baseUrl}?post=${slug}--${blogId}`;
+        
+        const safeSnippet = snippet ? snippet : 'Read the latest update on AFIT Digital Market.';
+        const shareText = `*${title}*\n\n${safeSnippet}\n\nRead the full article:\n${shareUrl}`;
 
         if (navigator.share) {
             navigator.share({
                 title: "AFIT Campus News",
                 text: `*${title}*\n${safeSnippet}\n\nRead the full article on AFIT Digital Market:`,
-                url: url
+                url: shareUrl
             }).catch(err => console.log('Share cancelled', err));
         } else {
             const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;

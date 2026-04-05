@@ -192,7 +192,7 @@
 
     <script src="../asset/script.js"></script>
 
-    <script>
+   <script>
         // ⚠️ REPLACE WITH YOUR CLOUDINARY CLOUD NAME
         const CLOUD_NAME = "dgsblxgni"; 
 
@@ -209,7 +209,6 @@
             currentUser = session.user;
 
             try {
-                // 🚀 FIXED: Check against user_id, not profile_id, to match your schema
                 const { data: existingVendor } = await supabaseClient
                     .from('vendors')
                     .select('id')
@@ -217,22 +216,38 @@
                     .single();
 
                 if (existingVendor) {
-                    // Already applied or active, boot to dashboard
                     window.location.href = "../add-product/index.html";
                     return;
                 }
                 
                 document.getElementById('auth-check-loader').style.display = 'none';
+                
+                // 🚀 NEW: Initialize the category limit checker
+                setupCategoryLimit();
 
             } catch (error) {
-                // No row found, let them register
                 document.getElementById('auth-check-loader').style.display = 'none';
+                setupCategoryLimit();
             }
         });
+        
+        // 🚀 NEW: Function to limit checkboxes to 5
+        function setupCategoryLimit() {
+            const checkboxes = document.querySelectorAll('.cat-checkbox');
+            checkboxes.forEach(box => {
+                box.addEventListener('change', function() {
+                    const checkedCount = document.querySelectorAll('.cat-checkbox:checked').length;
+                    if (checkedCount > 5) {
+                        this.checked = false; // Uncheck the box they just clicked
+                        alert("You can only select a maximum of 5 categories.");
+                    }
+                });
+            });
+        }
 
         function updateFileLabel(input, labelId, boxId) {
             if (input.files && input.files[0]) {
-                document.getElementById(labelId).innerHTML = `<span style="color: #10b981;"><i class="fas fa-check-circle"></i> ${input.files[0].name}</span>`;
+                document.getElementById(labelId).innerHTML = `<span style="color: #10b981;"><i class="fas fa-check-circle"></i> ${escapeHTML(input.files[0].name)}</span>`;
                 document.getElementById(boxId).classList.add('has-file');
             }
         }
@@ -240,7 +255,6 @@
         async function uploadToCloudinary(file) {
             const formData = new FormData();
             formData.append('file', file);
-            // ⚠️ REPLACE 'afit_images' WITH YOUR CLOUDINARY UPLOAD PRESET IF DIFFERENT
             formData.append('upload_preset', 'afit_media'); 
             
             const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: formData });
@@ -255,12 +269,14 @@
             
             const selectedCats = [];
             document.querySelectorAll('.cat-checkbox:checked').forEach(c => selectedCats.push(c.value));
+            
+            // 🚀 NEW: Double check category count on submit
             if(selectedCats.length === 0) return alert("Please select at least one category for your business.");
+            if(selectedCats.length > 5) return alert("You can only select a maximum of 5 categories.");
 
             btn.disabled = true;
 
             try {
-                // 1. Upload Images
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading Receipt (1/3)...';
                 const receiptUrl = await uploadToCloudinary(document.getElementById('f-receipt').files[0]);
 
@@ -270,15 +286,13 @@
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading ID (3/3)...';
                 const idUrl = await uploadToCloudinary(document.getElementById('f-id').files[0]);
 
-                // 2. Generate a temporary Vendor Code (Admin can edit this to V001 later)
                 const tempCode = 'AFIT-V-' + Math.floor(1000 + Math.random() * 9000);
 
-               // 3. Save to Supabase (Pending Status)
                 btn.innerHTML = '<i class="fas fa-save"></i> Submitting Application...';
                 
                 const { error } = await supabaseClient.from('vendors').insert([{
                     user_id: currentUser.id,
-                    email: currentUser.email,               // Automatically grabs logged-in email!
+                    email: currentUser.email,               
                     vendor_code: tempCode,
                     business_name: document.getElementById('v-name').value.trim(),
                     whatsapp_number: document.getElementById('v-whatsapp').value.trim(),
@@ -305,6 +319,6 @@
                 btn.innerText = "Submit Application";
             }
         }
-    </script>
+</script>
 </body>
 </html>

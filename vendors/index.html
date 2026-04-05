@@ -17,66 +17,49 @@
         .search-container:focus-within { border-color: var(--brand-color); background: white; }
         .search-container input[type="search"] { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; color: var(--text-main); -webkit-appearance: none; }
         
-        .vendor-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 20px; }
+        /* 🚀 NEW: Horizontal List Layout (Matches Search Page) */
+        .vendor-grid { display: flex; flex-direction: column; gap: 15px; padding: 0 20px; }
         
-        /* 🚀 NEW: Banner Card Design for Vendors */
         .vendor-card {
-            background: white; border-radius: 16px; text-align: center;
+            background: white; border-radius: 16px; padding: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e2e8f0;
-            transition: transform 0.2s; display: flex; flex-direction: column; align-items: center;
-            height: 100%; justify-content: space-between; overflow: hidden; min-width: 0;
-            position: relative; padding-bottom: 15px;
+            display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s;
         }
         .vendor-card:active { transform: scale(0.98); }
         
-        .vendor-banner {
-            width: 100%; height: 45px;
-            background: linear-gradient(135deg, var(--brand-color), #1a73e8);
-            position: absolute; top: 0; left: 0;
-            z-index: 1;
-        }
-        
         .vendor-logo {
-            width: 65px; height: 65px; border-radius: 50%; object-fit: cover;
-            border: 4px solid white; background: #eee; margin-top: 10px; margin-bottom: 8px;
-            position: relative; z-index: 2; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 55px; height: 55px; border-radius: 50%; object-fit: cover;
+            border: 2px solid #f1f5f9; flex-shrink: 0;
         }
         
-        .vendor-info-wrapper { flex-grow: 1; width: 100%; display: flex; flex-direction: column; overflow: hidden; min-width: 0; padding: 0 10px; z-index: 2;}
+        .vendor-info-wrapper { flex: 1; min-width: 0; }
         
         .vendor-id { 
             background: #eff6ff; color: var(--brand-color); font-size: 10px; padding: 3px 8px; 
             border-radius: 8px; font-family: monospace; font-weight: 800; margin-bottom: 6px; 
-            display: inline-block; align-self: center; border: 1px solid #bfdbfe;
+            display: inline-block; border: 1px solid #bfdbfe;
         }
         
         .vendor-name { 
-            font-size: 14px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; 
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; display: block;
+            font-size: 15px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
         }
         
         .vendor-desc { 
-            font-size: 11px; color: var(--text-muted); line-height: 1.4; 
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; 
-            overflow: hidden; margin-bottom: 15px; word-break: break-word;
+            font-size: 12px; color: var(--text-muted); line-height: 1.4; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        
-        .visit-btn {
-            background: #f8fafc; color: var(--brand-color); border: none;
-            width: calc(100% - 20px); padding: 10px; border-radius: 12px; font-size: 12px; font-weight: 800;
-            cursor: pointer; transition: 0.2s; margin-top: auto;
-        }
-        .vendor-card:hover .visit-btn { background: #eff6ff; }
 
-        .sk-shimmer { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        /* Skeleton Loaders (Updated for Horizontal Layout) */
+        .sk-shimmer { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         
-        .sk-card { background: white; border-radius: 16px; padding: 20px 15px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; align-items: center; }
-        .sk-avatar { width: 65px; height: 65px; border-radius: 50%; margin-bottom: 10px; flex-shrink: 0; }
-        .sk-line-1 { width: 40%; height: 12px; border-radius: 6px; margin-bottom: 10px; }
-        .sk-line-2 { width: 80%; height: 14px; border-radius: 6px; margin-bottom: 8px; }
-        .sk-line-3 { width: 90%; height: 10px; border-radius: 4px; margin-bottom: 15px; }
-        .sk-btn { width: 100%; height: 35px; border-radius: 12px; margin-top: auto; }
+        .sk-card { background: white; border-radius: 16px; padding: 15px; border: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; }
+        .sk-v-avatar { width: 55px; height: 55px; border-radius: 50%; flex-shrink: 0; }
+        .sk-line { height: 12px; }
+        .sk-line.short { width: 40%; margin-bottom: 8px;}
+        .sk-line.medium { width: 70%; margin-bottom: 8px;}
+        .sk-line.long { width: 90%; }
 
         .end-message { text-align: center; padding: 30px 20px 40px; color: #94a3b8; font-size: 13px; font-weight: 600; display: none; }
         .end-message i { font-size: 24px; color: #e2e8f0; margin-bottom: 8px; display: block; }
@@ -93,17 +76,18 @@
         body.dark-mode .search-container input { color: #f1f5f9 !important; }
 
         body.dark-mode .vendor-card { background: #1e293b !important; border-color: #334155 !important; }
-        body.dark-mode .vendor-logo { border-color: #1e293b !important; background: #334155 !important; }
+        body.dark-mode .vendor-logo { border-color: #334155 !important; background: #0f172a !important; }
         body.dark-mode .vendor-id { background: #0f172a !important; color: var(--brand-color) !important; border-color: #334155 !important; }
         body.dark-mode .vendor-name { color: #f1f5f9 !important; }
         body.dark-mode .vendor-desc { color: #cbd5e1 !important; }
-        
-        body.dark-mode .visit-btn { background: #0f172a !important; color: var(--brand-color) !important; }
-        body.dark-mode .vendor-card:hover .visit-btn { background: #334155 !important; color: white !important; }
 
         body.dark-mode .sk-card { background: #1e293b !important; border-color: #334155 !important; }
         body.dark-mode .end-message { color: #94a3b8 !important; }
         body.dark-mode .end-message i { color: #334155 !important; }
+        body.dark-mode .sk-shimmer { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%) !important; background-size: 200% 100% !important; }
+        
+        /* Nav FAB override for dark mode */
+        body.dark-mode .nav-fab { background: #1e293b !important; border-color: var(--brand-color) !important; color: var(--brand-color) !important; }
     </style>
 </head>
 <body>
@@ -127,12 +111,30 @@
             <div class="vendor-grid" id="main-vendor-grid" style="padding-top: 15px;"></div>
 
             <div class="vendor-grid" id="skeleton-loader" style="padding-top: 15px; display: none;">
-                <div class="sk-card"><div class="sk-shimmer sk-avatar"></div><div class="sk-shimmer sk-line-1"></div><div class="sk-shimmer sk-line-2"></div><div class="sk-shimmer sk-line-3"></div><div class="sk-shimmer sk-btn"></div></div>
-                <div class="sk-card"><div class="sk-shimmer sk-avatar"></div><div class="sk-shimmer sk-line-1"></div><div class="sk-shimmer sk-line-2"></div><div class="sk-shimmer sk-line-3"></div><div class="sk-shimmer sk-btn"></div></div>
-                <div class="sk-card"><div class="sk-shimmer sk-avatar"></div><div class="sk-shimmer sk-line-1"></div><div class="sk-shimmer sk-line-2"></div><div class="sk-shimmer sk-line-3"></div><div class="sk-shimmer sk-btn"></div></div>
-                <div class="sk-card"><div class="sk-shimmer sk-avatar"></div><div class="sk-shimmer sk-line-1"></div><div class="sk-shimmer sk-line-2"></div><div class="sk-shimmer sk-line-3"></div><div class="sk-shimmer sk-btn"></div></div>
-                <div class="sk-card"><div class="sk-shimmer sk-avatar"></div><div class="sk-shimmer sk-line-1"></div><div class="sk-shimmer sk-line-2"></div><div class="sk-shimmer sk-line-3"></div><div class="sk-shimmer sk-btn"></div></div>
-                <div class="sk-card"><div class="sk-shimmer sk-avatar"></div><div class="sk-shimmer sk-line-1"></div><div class="sk-shimmer sk-line-2"></div><div class="sk-shimmer sk-line-3"></div><div class="sk-shimmer sk-btn"></div></div>
+                <div class="sk-card">
+                    <div class="sk-shimmer sk-v-avatar"></div>
+                    <div style="flex:1;">
+                        <div class="sk-shimmer sk-line short"></div>
+                        <div class="sk-shimmer sk-line medium"></div>
+                        <div class="sk-shimmer sk-line long"></div>
+                    </div>
+                </div>
+                <div class="sk-card">
+                    <div class="sk-shimmer sk-v-avatar"></div>
+                    <div style="flex:1;">
+                        <div class="sk-shimmer sk-line short"></div>
+                        <div class="sk-shimmer sk-line medium"></div>
+                        <div class="sk-shimmer sk-line long"></div>
+                    </div>
+                </div>
+                <div class="sk-card">
+                    <div class="sk-shimmer sk-v-avatar"></div>
+                    <div style="flex:1;">
+                        <div class="sk-shimmer sk-line short"></div>
+                        <div class="sk-shimmer sk-line medium"></div>
+                        <div class="sk-shimmer sk-line long"></div>
+                    </div>
+                </div>
             </div>
 
             <div id="scroll-sentinel" style="height: 1px; width: 100%;"></div>
@@ -151,7 +153,7 @@
                 <span class="red-dot msg-dot"></span>
                 <span>Messages</span>
             </a>
-            <div class="nav-fab" onclick="requireLogin('../add-product/index.html')" style="border-color: var(--brand-color); background: white; color: var(--brand-color); box-shadow: none;"><i class="fas fa-plus"></i></div>
+           <div class="nav-fab" onclick="requireLogin('../add-product/index.html')" style="background: var(--brand-color); color: white; border: none; box-shadow: 0 4px 15px rgba(45, 142, 255, 0.4);"><i class="fas fa-plus"></i></div>
             <a href="#" class="nav-item" onclick="requireLogin('../saved/index.html')"><i class="fas fa-heart"></i><span>Saved</span></a>
             <a href="#" class="nav-item" onclick="requireLogin('../account/index.html')"><i class="fas fa-user"></i><span>Account</span></a>
         </div>
@@ -185,7 +187,7 @@
         }
 
         async function fetchActiveVendors() {
-            document.getElementById('skeleton-loader').style.display = 'grid';
+            document.getElementById('skeleton-loader').style.display = 'flex';
             try {
                 const { data, error } = await supabaseClient
                     .from('vendors')
@@ -202,7 +204,7 @@
 
             } catch (error) {
                 document.getElementById('skeleton-loader').style.display = 'none';
-                document.getElementById('main-vendor-grid').innerHTML = `<p style="grid-column:span 2; text-align:center; color:red; padding: 40px;">Failed to load vendors.</p>`;
+                document.getElementById('main-vendor-grid').innerHTML = `<p style="text-align:center; color:red; padding: 40px;">Failed to load vendors.</p>`;
             }
         }
 
@@ -215,7 +217,7 @@
             
             if (currentDisplayList.length === 0) {
                 grid.innerHTML = `
-                    <div style="grid-column: span 2; text-align: center; padding: 60px 20px; color: #94a3b8;">
+                    <div style="text-align: center; padding: 60px 20px; color: #94a3b8;">
                         <i class="fas fa-store-slash" style="font-size: 50px; margin-bottom: 15px; color: #cbd5e1;"></i>
                         <h3 style="font-size: 16px; color: #1e293b; margin: 0 0 5px;">No vendor found</h3>
                         <p style="font-size: 13px;">Try adjusting your search terms.</p>
@@ -228,16 +230,16 @@
             if (vendorsLoaded >= currentDisplayList.length) return;
 
             isFetchingBatch = true;
-            skeleton.style.display = 'grid';
+            skeleton.style.display = 'flex';
 
             setTimeout(() => {
                 skeleton.style.display = 'none';
 
-                const batchSize = vendorsLoaded === 0 ? 50 : 40;
+                const batchSize = vendorsLoaded === 0 ? 30 : 20;
                 const nextBatch = currentDisplayList.slice(vendorsLoaded, vendorsLoaded + batchSize);
 
                 nextBatch.forEach(v => {
-                    const logoUrl = v.logo_url || 'https://via.placeholder.com/150x150?text=Logo';
+                    const logoUrl = v.logo_url || 'https://via.placeholder.com/100x100?text=Logo';
                     
                     const shortId = v.vendor_code || ("V-" + v.id.substring(0, 5).toUpperCase());
                     const safeName = v.business_name ? v.business_name : 'Verified Vendor';
@@ -247,17 +249,15 @@
                     if (v.subscription_plan === "Influencer") badgeColor = "#fbbf24"; 
                     if (v.subscription_plan === "Icon") badgeColor = "#1e293b"; 
 
-                    // 🚀 XSS FIX: Wrapped all user-generated fields
+                    // 🚀 XSS FIX: Wrap user-generated fields & Use Horizontal Layout
                     grid.insertAdjacentHTML('beforeend', `
                         <div class="vendor-card" onclick="window.location.href='profile/index.html?id=${v.id}'">
-                            <div class="vendor-banner"></div>
-                            <img src="${logoUrl}" class="vendor-logo" onerror="this.src='https://via.placeholder.com/150x150?text=Logo'">
+                            <img src="${logoUrl}" class="vendor-logo" onerror="this.src='https://via.placeholder.com/100x100?text=Logo'">
                             <div class="vendor-info-wrapper">
                                 <div><span class="vendor-id">${escapeHTML(shortId)}</span></div>
-                                <div class="vendor-name">${escapeHTML(safeName)} <i class="fas fa-check-circle" style="color: ${badgeColor};"></i></div>
+                                <div class="vendor-name">${escapeHTML(safeName)} <i class="fas fa-check-circle" style="color: ${badgeColor}; font-size: 12px;"></i></div>
                                 <div class="vendor-desc">${escapeHTML(safeDesc)}</div>
                             </div>
-                            <button class="visit-btn">Visit Store</button>
                         </div>
                     `);
                 });
