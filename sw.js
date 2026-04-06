@@ -1,16 +1,13 @@
-const CACHE_NAME = 'afit-market-v1';
+// A minimal, safe Service Worker that satisfies PWA requirements
+// WITHOUT breaking Supabase database connections!
 
-// Install the service worker
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// Activate the service worker
 self.addEventListener('activate', (event) => {
-    return self.clients.claim();
+    event.waitUntil(clients.claim());
 });
 
-// A simple fetch listener to satisfy PWA installation criteria
-self.addEventListener('fetch', (event) => {
-    event.respondWith(fetch(event.request));
-});
+// Notice there is NO 'fetch' event listener here!
+// This ensures your database API calls go straight to the internet and never get blocked.

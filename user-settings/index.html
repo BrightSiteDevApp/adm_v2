@@ -58,6 +58,12 @@
 </head>
 <body>
 
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
     <div id="loading-overlay">
         <div class="spinner"></div>
         <p style="margin-top: 15px; font-weight: 700; color: var(--text-muted); font-size: 14px;">Loading Settings...</p>
@@ -86,6 +92,11 @@
                         <input type="text" id="user-name" class="form-input" placeholder="e.g. John Doe" required>
                     </div>
                     
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" id="user-phone" class="form-input" placeholder="e.g. 08012345678" required>
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label">Email Address (Cannot be changed)</label>
                         <input type="email" id="user-email" class="form-input" disabled style="opacity: 0.6; cursor: not-allowed;">
@@ -145,10 +156,12 @@
             }
         }
 
+        // We assign text to innerText/textContent instead of using escapeHTML just to be extremely safe from XSS.
         function showMsg(text, isError = false) {
             const msgBox = document.getElementById('msg-box');
-            // 🚀 XSS FIX: Escape the message text just in case it contains API error HTML
-            msgBox.innerHTML = isError ? `<i class="fas fa-exclamation-triangle"></i> ${escapeHTML(text)}` : `<i class="fas fa-check-circle"></i> ${escapeHTML(text)}`;
+            msgBox.innerHTML = isError ? `<i class="fas fa-exclamation-triangle"></i> ` : `<i class="fas fa-check-circle"></i> `;
+            msgBox.appendChild(document.createTextNode(text)); // Safe text injection
+            
             msgBox.className = isError ? 'msg-error' : 'msg-success';
             msgBox.style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -197,6 +210,7 @@
             }
 
             if (!newName) return showMsg("Full Name cannot be empty.", true);
+            if (!newPhone) return showMsg("Phone Number cannot be empty.", true);
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
@@ -229,6 +243,6 @@
                 btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
             }
         }
-</script>
+    </script>
 </body>
 </html>

@@ -42,34 +42,37 @@
         .empty-state h3 { font-size: 16px; color: var(--text-main); margin-bottom: 8px; font-weight: 800; }
         .empty-state p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
 
-        /* 🚀 NEW: Clean Vendor Card Override */
+        /* 🚀 FIX: Clean Vendor Card Overflow Fix */
         .vendor-card { 
             background: white; border-radius: 20px; padding: 15px 10px 20px; 
             text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.02); 
             border: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; 
             display: flex; flex-direction: column; align-items: center; 
+            width: 100%; min-width: 0; box-sizing: border-box; overflow: hidden; /* Added min-width 0 & overflow hidden */
         }
         .vendor-card:active { transform: scale(0.96); }
         .vendor-logo { 
-            width: 75px; height: 75px; border-radius: 50%; object-fit: cover; 
-            margin: 5px auto 12px; display: block; border: 2px solid #f8fafc; background: #eee; 
+            width: 65px; height: 65px; border-radius: 50%; object-fit: cover; 
+            margin: 5px auto 12px; display: block; border: 2px solid #f8fafc; background: #eee; flex-shrink: 0;
         }
         .vendor-name { 
-            font-size: 14px; font-weight: 900; color: var(--text-main); 
+            font-size: 13px; font-weight: 900; color: var(--text-main); 
             margin-bottom: 4px; display: flex; justify-content: center; align-items: center; 
-            gap: 4px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-            text-transform: uppercase; 
+            gap: 4px; width: 100%; text-transform: uppercase; 
+        }
+        .vendor-name-text {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;
         }
         .vendor-desc { 
             font-size: 11px; color: var(--text-muted); font-weight: 600; 
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-            width: 100%; text-transform: uppercase; 
+            width: 100%; text-transform: uppercase; display: block;
         }
 
         /* Skeletons */
         .sk-shimmer { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .sk-card { background: white; border-radius: 16px; padding: 10px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; height: 100%; }
+        .sk-card { background: white; border-radius: 16px; padding: 10px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; height: 100%; width: 100%; min-width: 0; box-sizing: border-box; overflow: hidden; }
         .sk-img { width: 100%; height: 140px; border-radius: 10px; margin-bottom: 10px; flex-shrink: 0; }
         .sk-v-avatar { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 10px; flex-shrink: 0; }
         .sk-line { height: 12px; border-radius: 4px; margin-bottom: 8px; }
@@ -102,14 +105,12 @@
         body.dark-mode .empty-state h3 { color: #f1f5f9 !important; }
         body.dark-mode .empty-state p { color: #94a3b8 !important; }
 
-        /* 🚀 NEW: Clean Vendor Card Dark Mode */
         body.dark-mode .vendor-card { background: #1e293b !important; border-color: #334155 !important; }
         body.dark-mode .vendor-name { color: #f1f5f9 !important; }
         body.dark-mode .vendor-logo { border-color: #334155 !important; background: #0f172a !important; }
         
         body.dark-mode .sk-card { background: #1e293b !important; border-color: #334155 !important; }
         
-        /* 🚀 FIX: Ensure card prices are always blue in dark mode */
         body.dark-mode .card .card-price { color: var(--brand-color) !important; }
     </style>
 </head>
@@ -336,7 +337,6 @@
                 const imgUrl = (p.image_urls && p.image_urls.length > 0) ? p.image_urls[0] : 'https://via.placeholder.com/300';
                 const fPrice = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', maximumFractionDigits: 0 }).format(p.price);
 
-                // 🚀 XSS FIX: Escape name and category
                 grid.innerHTML += `
                     <div class="card" onclick="window.location.href='../product/index.html?id=${p.id}'">
                         <img src="${imgUrl}" class="card-img" onerror="this.src='https://via.placeholder.com/300'">
@@ -373,12 +373,12 @@
                 if (v.subscription_plan === "Influencer") badgeColor = "#fbbf24"; 
                 if (v.subscription_plan === "Icon") badgeColor = "#1e293b"; 
 
-                // 🚀 XSS FIX: Escape business name and description
+                // 🚀 FIX: The name is now cleanly wrapped in <span class="vendor-name-text">
                 grid.innerHTML += `
                     <div class="vendor-card" onclick="window.location.href='../vendors/profile/index.html?id=${v.id}'">
                         <img src="${logo}" class="vendor-logo" onerror="this.src='https://via.placeholder.com/100'">
                         <div class="vendor-name">
-                            ${escapeHTML(v.business_name)} <i class="fas fa-check-circle" style="color: ${badgeColor}; font-size: 13px;"></i>
+                            <span class="vendor-name-text">${escapeHTML(v.business_name)}</span> <i class="fas fa-check-circle" style="color: ${badgeColor}; font-size: 12px; flex-shrink: 0;"></i>
                         </div>
                         <div class="vendor-desc">${escapeHTML(descTxt)}</div>
                     </div>

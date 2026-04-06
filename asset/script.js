@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchBlogs();
     setupExpandableFooter(); 
     checkGlobalBadges();
+    fetchAdPopup(); // 🚀 Added Ad Fetcher
 });
 
 // =========================================
@@ -169,8 +170,9 @@ async function fetchItems() {
     } catch (error) { grid.innerHTML = `<p style="grid-column: span 2; text-align: center; color: red;">Failed to load items.</p>`; }
 }
 
+
 // =========================================
-// --- FETCH VENDORS ---
+// --- FETCH VENDORS (With Pinning) ---
 // =========================================
 async function fetchVendors() {
     const grid = document.getElementById('vendor-grid');
@@ -178,8 +180,9 @@ async function fetchVendors() {
     try {
         const { data: vendors, error } = await supabaseClient
             .from('vendors')
-            .select('id, vendor_code, business_name, description, logo_url, subscription_plan')
+            .select('id, vendor_code, business_name, description, logo_url, subscription_plan, is_pinned')
             .eq('is_active', true)
+            .order('is_pinned', { ascending: false }) // Pinned come first
             .limit(100);
 
         if (error) throw error;
@@ -190,9 +193,14 @@ async function fetchVendors() {
             return;
         }
 
-        const randomVendors = shuffleArray(vendors).slice(0, 30);
+        // 🚀 Separate and shuffle logic
+        const pinnedVendors = vendors.filter(v => v.is_pinned === true);
+        let unpinnedVendors = vendors.filter(v => v.is_pinned !== true);
+        unpinnedVendors = shuffleArray(unpinnedVendors);
+        
+        const finalVendors = [...pinnedVendors, ...unpinnedVendors].slice(0, 30);
 
-        randomVendors.forEach(v => {
+        finalVendors.forEach(v => {
             const logo = v.logo_url || "https://via.placeholder.com/100";
             const nameTxt = v.business_name ? v.business_name : 'Unknown';
             const descTxt = v.description ? v.description.substring(0, 25) + '...' : 'Verified Seller';
@@ -200,20 +208,60 @@ async function fetchVendors() {
             let badgeColor = "#38bdf8"; 
             if (v.subscription_plan === "Influencer") badgeColor = "#fbbf24"; 
             if (v.subscription_plan === "Icon") badgeColor = "#1e293b"; 
+            
+            // 🚀 The Pin Badge
+            const pinBadge = v.is_pinned ? `<div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fbbf24; padding: 3px 8px; border-radius: 8px; font-size: 10px; font-weight: 800; backdrop-filter: blur(4px); z-index: 10;"><i class="fas fa-thumbtack"></i> Featured</div>` : '';
 
             grid.innerHTML += `
-                <div class="card" style="text-align: center; display: flex; flex-direction: column; align-items: center; height: 100%;" onclick="window.location.href='vendors/profile/?id=${v.id}'">
+                <div class="card" style="text-align: center; display: flex; flex-direction: column; align-items: center; height: 100%; position: relative;" onclick="window.location.href='vendors/profile/?id=${v.id}'">
+                    ${pinBadge}
                     <img src="${logo}" style="width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 10px; flex-shrink: 0; object-fit: cover;" onerror="this.src='https://via.placeholder.com/100'">
                     <div style="width: 100%; overflow: hidden;">
-                        <div style="font-size: 13px; font-weight: 800; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${nameTxt} <i class="fas fa-check-circle" style="color: ${badgeColor};"></i>
+                        <div style="font-size: 13px; font-weight: 800; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${escapeHTML(nameTxt)} <i class="fas fa-check-circle" style="color: ${badgeColor};"></i>
                         </div>
-                        <div style="margin-top: 5px; font-size: 11px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${descTxt}</div>
+                        <div style="margin-top: 5px; font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(descTxt)}</div>
                     </div>
                 </div>
             `;
         });
     } catch (error) { grid.innerHTML = `<p style="grid-column: span 2; text-align: center; color: red;">Failed to load vendors.</p>`; }
+}
+
+// =========================================
+// --- FETCH AD POPUP ---
+// =========================================
+async function fetchAdPopup() {
+    try {
+        const { data, error } = await supabaseClient.from('ads').select('*').eq('is_active', true);
+        if (error || !data || data.length === 0) return;
+
+        // Pick a random ad from the active ones
+        const randomAd = data[Math.floor(Math.random() * data.length)];
+
+        document.getElementById('ad-title').innerText = randomAd.title;
+        document.getElementById('ad-content').innerText = randomAd.content;
+        
+        const adBtn = document.getElementById('ad-btn');
+        if(randomAd.button_text) adBtn.innerText = randomAd.button_text;
+        adBtn.href = randomAd.button_link || "#";
+
+        const adImg = document.getElementById('ad-image');
+        if (randomAd.image_url) {
+            adImg.src = randomAd.image_url;
+            adImg.style.display = 'block';
+        } else {
+            adImg.style.display = 'none';
+        }
+
+        // Show popup 1.5 seconds after page loads so it feels natural
+        setTimeout(() => {
+            document.getElementById('ad-popup').style.display = 'flex';
+        }, 1500);
+        
+    } catch (err) {
+        console.error("Ad fetch error:", err);
+    }
 }
 
 // =========================================
@@ -349,15 +397,40 @@ function setupExpandableFooter() {
 let deferredPrompt;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-/* TEMPORARILY DISABLED SERVICE WORKER BECAUSE IT IS BLOCKING SUPABASE
+// 🚀 RE-ENABLED: This registers the safe, clean sw.js
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
+        // Make sure this path points exactly to your sw.js file in your root folder
         navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker Registered!', reg))
+            .then(reg => console.log('Service Worker Registered Successfully!', reg))
             .catch(err => console.log('Service Worker Registration Failed', err));
     });
 }
-*/
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+window.downloadApp = async function() {
+    if (isIOS) {
+        const iosPopup = document.getElementById('ios-install-popup');
+        if (iosPopup) {
+            iosPopup.style.display = 'flex';
+        } else {
+            alert("To install AFIT Market on iOS:\n\n1. Tap the 'Share' icon at the bottom of Safari.\n2. Scroll down and tap 'Add to Home Screen'.");
+        }
+    } else if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('AFIT Market PWA Installed!');
+        }
+        deferredPrompt = null;
+    } else {
+        alert("The app is already installed on your device or your current browser doesn't support automatic installation.");
+    }
+};
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -418,3 +491,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
+// =========================================
+// 🚀 EMERGENCY SERVICE WORKER KILL SWITCH
+// =========================================
+// This forcefully unregisters the buggy Service Worker that blocks Supabase
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+            registration.unregister();
+            console.log('Old Service Worker forcefully unregistered!');
+        }
+    });
+}

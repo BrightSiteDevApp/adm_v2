@@ -18,7 +18,7 @@
         
         <div class="header">
             <div class="header-top">
-               <a href="index.html" class="logo-link">
+               <a href="/" class="logo-link">
                     <img src="asset/img/logo.png" alt="AFIT Digital Market Logo" class="header-logo" onerror="this.src='https://via.placeholder.com/150x45?text=AFIT+DGM'">
                 </a>
                 <a href="notification/index.html" class="notify-icon-container" style="position: relative; text-decoration: none; color: var(--brand-color); display: inline-block; font-size: 22px;">
@@ -201,6 +201,27 @@
                 <i class="fas fa-user"></i>
                 <span>Account</span>
             </a>
+        </div>
+
+        <style>
+            .ad-modal-box { background: white; border-radius: 24px; overflow: hidden; max-width: 350px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; animation: slideUp 0.3s ease-out; margin: 20px; }
+            .ad-close-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+            body.dark-mode .ad-modal-box { background: #1e293b; border: 1px solid #334155; }
+            body.dark-mode #ad-title { color: #f1f5f9 !important; }
+            body.dark-mode #ad-content { color: #cbd5e1 !important; }
+            @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        </style>
+        
+        <div id="ad-popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(5px); z-index: 10000; justify-content: center; align-items: center;">
+            <div class="ad-modal-box">
+                <button class="ad-close-btn" onclick="document.getElementById('ad-popup').style.display='none'"><i class="fas fa-times"></i></button>
+                <img id="ad-image" src="" style="width: 100%; height: 180px; object-fit: cover; display: none;">
+                <div style="padding: 25px 20px; text-align: center;">
+                    <h3 id="ad-title" style="margin: 0 0 10px; font-size: 18px; font-weight: 900; color: #1e293b;">...</h3>
+                    <p id="ad-content" style="font-size: 13px; color: #64748b; line-height: 1.6; margin-bottom: 20px;">...</p>
+                    <a id="ad-btn" href="#" target="_blank" style="display: block; background: var(--brand-color); color: white; text-decoration: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 14px; transition: 0.2s;">Learn More</a>
+                </div>
+            </div>
         </div>
         
 

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FAQ | AFIT Digital Market</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../asset/style.css">
+    <link rel="icon" href="../asset/img/app-logo.png" type="image/png">
+
+    <style>
+        .page-header { background: white; padding: 15px 20px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .back-btn { background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; padding: 5px; }
+        .page-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin: 0; }
+        
+        .content-padding { padding: 20px; padding-bottom: 40px; }
+
+        /* Modern Accordion */
+        .faq-card { background: white; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; overflow: hidden; transition: 0.3s; }
+        .faq-q { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 13px; color: var(--text-main); cursor: pointer; user-select: none; }
+        .faq-a { padding: 0 20px 20px; font-size: 12px; color: var(--text-muted); line-height: 1.6; display: none; }
+        
+        .faq-card.active { border-color: var(--brand-color); box-shadow: 0 4px 15px rgba(45, 142, 255, 0.1); }
+        .faq-card.active .faq-a { display: block; animation: fade-in 0.3s; }
+        .faq-card i { color: #94a3b8; transition: transform 0.3s; }
+        .faq-card.active i { transform: rotate(180deg); color: var(--brand-color); }
+        
+        @keyframes fade-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 🌙 Dark Mode Support */
+        body.dark-mode { background-color: #020617 !important; }
+        body.dark-mode .app-container { background: #0f172a !important; }
+        body.dark-mode .page-header { background: #1e293b !important; border-bottom: 1px solid #334155 !important; }
+        body.dark-mode .back-btn, body.dark-mode .page-title { color: #f1f5f9 !important; }
+        body.dark-mode .faq-card { background: #1e293b !important; border-color: #334155 !important; }
+        body.dark-mode .faq-card.active { border-color: var(--brand-color) !important; }
+        body.dark-mode .faq-q { color: #f1f5f9 !important; }
+        body.dark-mode .faq-a { color: #cbd5e1 !important; }
+    </style>
+</head>
+<body>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <div class="app-container">
+        
+        <div class="page-header">
+            <button onclick="window.location.href='../index.html'" class="back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h1 class="page-title">Help & FAQ</h1>
+        </div>
+
+        <div class="content-area content-padding">
+            
+            <div class="faq-card">
+                <div class="faq-q">1. Does ADM handle payments? <i class="fas fa-chevron-down"></i></div>
+                <div class="faq-a">No. ADM does not collect or process payments. All payments are made directly between buyers and vendors. Please exercise caution and verify items before paying.</div>
+            </div>
+
+            <div class="faq-card">
+                <div class="faq-q">2. What does the Verified badge mean? <i class="fas fa-chevron-down"></i></div>
+                <div class="faq-a">The blue Verified badge means the vendor has provided their student ID and business details to the admins. It adds a layer of trust, but does not guarantee the transaction.</div>
+            </div>
+
+            <div class="faq-card">
+                <div class="faq-q">3. Can anyone sell on ADM? <i class="fas fa-chevron-down"></i></div>
+                <div class="faq-a">Yes! Any student can apply to become a vendor. Just click the Plus (+) button on the bottom navigation bar to start your registration.</div>
+            </div>
+
+            <div class="faq-card">
+                <div class="faq-q">4. What if I suspect a scam? <i class="fas fa-chevron-down"></i></div>
+                <div class="faq-a">Stop the interaction immediately. Do not send money or personal details. Contact our Support team immediately so we can investigate and remove the listing if necessary.</div>
+            </div>
+
+            <div class="faq-card">
+                <div class="faq-q">5. Are listings reviewed? <i class="fas fa-chevron-down"></i></div>
+                <div class="faq-a">Vendors are monitored, but individual item listings are uploaded automatically. We do not guarantee the quality or authenticity of the items listed. Always inspect items in person.</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="../asset/script.js"></script>
+    <script>
+        document.querySelectorAll('.faq-q').forEach(item => {
+            item.addEventListener('click', () => {
+                const parent = item.parentElement;
+                parent.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>

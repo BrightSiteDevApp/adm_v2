@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VSGR5WBW"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>About Us | AFIT Digital Market</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../asset/style.css">
+    <link rel="icon" href="../asset/img/app-logo.png" type="image/png">
+
+    <style>
+        .page-header { background: white; padding: 15px 20px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .back-btn { background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; padding: 5px; }
+        .page-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin: 0; }
+        
+        .content-padding { padding: 20px; padding-bottom: 40px; }
+        
+        .text-content { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+        .text-content h3 { font-size: 15px; font-weight: 800; color: var(--text-main); margin: 20px 0 8px; }
+        .text-content p { margin-bottom: 12px; }
+        .text-content ul { padding-left: 20px; margin-bottom: 12px; }
+        .text-content li { margin-bottom: 6px; }
+
+        .brand-box { background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; margin-top: 15px; }
+        .brand-box a { color: var(--brand-color); font-weight: 700; text-decoration: none; }
+
+        /* 🌙 Dark Mode Support */
+        body.dark-mode { background-color: #020617 !important; }
+        body.dark-mode .app-container { background: #0f172a !important; }
+        body.dark-mode .page-header { background: #1e293b !important; border-bottom: 1px solid #334155 !important; }
+        body.dark-mode .back-btn, body.dark-mode .page-title { color: #f1f5f9 !important; }
+        body.dark-mode .card { background: #1e293b !important; border-color: #334155 !important; box-shadow: none !important; }
+        body.dark-mode .text-content h2, body.dark-mode .text-content h3 { color: #f1f5f9 !important; }
+        body.dark-mode .text-content p, body.dark-mode .text-content ul { color: #cbd5e1 !important; }
+        body.dark-mode .brand-box { background: rgba(45, 142, 255, 0.1) !important; border-color: rgba(45, 142, 255, 0.2) !important; }
+    </style>
+</head>
+<body>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <div class="app-container">
+        
+        <div class="page-header">
+            <button onclick="window.location.href='../index.html'" class="back-btn"><i class="fas fa-arrow-left"></i></button>
+            <h1 class="page-title">About ADM</h1>
+        </div>
+
+        <div class="content-area content-padding">
+            <div class="card text-content" style="padding: 20px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="../asset/img/logo.png" alt="ADM Logo" style="height: 40px; margin-bottom: 10px;">
+                    <h2 style="font-size: 18px; color: var(--text-main); font-weight: 800;">Welcome to AFIT Digital Market</h2>
+                </div>
+
+                <p>AFIT Digital Market (ADM) is a campus-focused online marketplace explicitly tailored to connect students, small business owners, and service providers within the AFIT community. We make it simple to discover, promote, and access goods right where you are.</p>
+
+                <h3>Our Mission</h3>
+                <ul>
+                    <li>Empower student entrepreneurs to reach a wider audience.</li>
+                    <li>Make buying and selling on campus secure, fast, and organized.</li>
+                    <li>Centralize the scattered WhatsApp market into one trusted hub.</li>
+                </ul>
+
+                <h3>How It Works</h3>
+                <p>We serve purely as a discovery and listing platform. Vendors showcase their best items, and buyers can easily browse and contact them directly. <b>ADM does not process payments or handle deliveries.</b></p>
+
+                <h3>Built by BrightSiteDev</h3>
+                <p>ADM is proudly developed and maintained by the BrightSiteDev team—a digital solutions brand dedicated to building modern, functional, and user-centered web experiences.</p>
+                
+                <div class="brand-box">
+                    <p style="margin: 0 0 5px; color: #1e40af;"><i class="fas fa-globe"></i> <a href="https://brightsitedev.tech">brightsitedev.tech</a></p>
+                    <p style="margin: 0; color: #1e40af;"><i class="fab fa-instagram"></i> @brightsitedev</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="../asset/script.js"></script>
+</body>
+</html>

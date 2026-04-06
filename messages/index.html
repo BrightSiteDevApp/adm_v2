@@ -162,15 +162,16 @@
                 const customerIds = [...new Set(chats.map(c => c.customer_id))];
                 const vendorIds = [...new Set(chats.map(c => c.vendor_id))];
 
+                // 🚀 BUG FIX: Query vendors by user_id, not profile_id!
                 const [prodRes, profRes, vendRes] = await Promise.all([
                     supabaseClient.from('products').select('id, name').in('id', productIds),
                     supabaseClient.from('profiles').select('id, full_name, avatar_url').in('id', customerIds),
-                    supabaseClient.from('vendors').select('profile_id, business_name, logo_url').in('profile_id', vendorIds)
+                    supabaseClient.from('vendors').select('user_id, business_name, logo_url').in('user_id', vendorIds)
                 ]);
 
                 const prodDict = {}; prodRes.data?.forEach(p => prodDict[p.id] = p);
                 const profDict = {}; profRes.data?.forEach(p => profDict[p.id] = p);
-                const vendDict = {}; vendRes.data?.forEach(v => vendDict[v.profile_id] = v);
+                const vendDict = {}; vendRes.data?.forEach(v => vendDict[v.user_id] = v);
 
                 list.innerHTML = "";
 
@@ -186,13 +187,15 @@
                     if (amICustomer) {
                         const vData = vendDict[chat.vendor_id];
                         displayName = vData ? vData.business_name : "Store Vendor";
-                        displayAvatar = vData && vData.logo_url ? vData.logo_url : "https://via.placeholder.com/150";
+                        // 🚀 UPDATE: Use correct person.png path
+                        displayAvatar = vData && vData.logo_url ? vData.logo_url : "../asset/img/person.png";
                         isVerified = true;
                         hasUnread = chat.unread_by_customer;
                     } else {
                         const cData = profDict[chat.customer_id];
                         displayName = cData ? cData.full_name : "Customer";
-                        displayAvatar = cData && cData.avatar_url ? cData.avatar_url : "https://via.placeholder.com/150";
+                        // 🚀 UPDATE: Use correct person.png path
+                        displayAvatar = cData && cData.avatar_url ? cData.avatar_url : "../asset/img/person.png";
                         hasUnread = chat.unread_by_vendor;
                     }
 
@@ -202,14 +205,14 @@
                     const dotIndicator = hasUnread ? `<span style="display:inline-block; width:10px; height:10px; background:var(--brand-color); border-radius:50%; margin-right:8px;"></span>` : '';
                     const boldText = hasUnread ? 'font-weight: 800; color: var(--text-main);' : '';
 
-                    // 🚀 XSS FIX: Escape name, product, and message variables
                     const safeDisplayName = escapeHTML(displayName);
                     const safeProductName = escapeHTML(productData.name);
                     const safeLastMsg = escapeHTML(lastMsg);
 
+                    // 🚀 UPDATE: Set onerror attribute to the exact correct path
                     list.innerHTML += `
                         <div class="chat-card" onclick="window.location.href='../chats/index.html?chat_id=${chat.id}'">
-                            <img src="${displayAvatar}" class="chat-avatar" onerror="this.src='https://via.placeholder.com/150'">
+                            <img src="${displayAvatar}" class="chat-avatar" onerror="this.src='../asset/img/person.png'">
                             <div class="chat-info">
                                 <div class="chat-header-row">
                                     <div class="chat-name">${safeDisplayName} ${isVerified ? '<i class="fas fa-check-circle" style="color: var(--brand-color); font-size: 11px;"></i>' : ''}</div>
@@ -257,6 +260,6 @@
                 return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
             }
         }
-</script>
+    </script>
 </body>
 </html>
