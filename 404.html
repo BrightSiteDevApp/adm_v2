@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Page Not Found | AFIT Digital Market</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800;900&display=swap');
+        
+        :root {
+            --brand-color: #2d8eff;
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; overflow: hidden; 
+        }
+
+        .container {
+            background: white; width: 90%; max-width: 400px;
+            padding: 40px 30px; border-radius: 24px; text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+            animation: popUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes popUp {
+            from { transform: translateY(20px) scale(0.95); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .error-code {
+            font-size: 80px; font-weight: 900; color: var(--brand-color);
+            line-height: 1; margin-bottom: 5px;
+            text-shadow: 4px 4px 0px rgba(45, 142, 255, 0.2);
+        }
+
+        h1 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+        p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px; }
+
+        .home-btn {
+            background: var(--brand-color); color: white; border: none; text-decoration: none;
+            width: 100%; padding: 15px; border-radius: 14px; font-size: 15px; font-weight: 800;
+            cursor: pointer; transition: 0.2s; box-shadow: 0 8px 20px rgba(45, 142, 255, 0.3);
+            display: inline-flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .home-btn:active { transform: scale(0.96); }
+
+        /* 🌙 DARK MODE */
+        body.dark-mode { background-color: #020617; }
+        body.dark-mode .container { background: #0f172a; border-color: #334155; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        body.dark-mode h1 { color: #f1f5f9; }
+        body.dark-mode p { color: #94a3b8; }
+        body.dark-mode .error-code { text-shadow: 4px 4px 0px rgba(45, 142, 255, 0.1); }
+    </style>
+</head>
+<body>
+
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <div class="container">
+        <div class="error-code">404</div>
+        <h1>Lost on Campus?</h1>
+        <p>Oops! It looks like the page or item you are looking for doesn't exist, was moved, or was deleted by the vendor.</p>
+        
+        <a href="/" class="home-btn">
+            <i class="fas fa-home"></i> Back to Market
+        </a>
+    </div>
+
+</body>
+</html>
