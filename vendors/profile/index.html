@@ -8,6 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../asset/style.css">
+    <link rel="icon" href="../../asset/img/app-logo.png" type="image/png" sizes="192x192">
+  <link rel="icon" href="../../favicon.ico" type="image/x-icon">
 
     <style>
         /* 🚀 MODERN APP LAYOUT */
@@ -183,7 +185,7 @@
     <div class="app-container">
         
         <div class="sticky-top-bar">
-            <button class="icon-btn-overlay" onclick="window.history.back()"><i class="fas fa-arrow-left"></i></button>
+            <button class="icon-btn-overlay" onclick="smartBack()"><i class="fas fa-arrow-left"></i></button>
             <div style="font-weight: 800; font-size: 16px;">Store Profile</div>
             <button class="icon-btn-overlay" onclick="shareStore()"><i class="fas fa-share-alt"></i></button>
         </div>
@@ -286,6 +288,19 @@
         let currentUser = null;
         let currentVendor = null;
         let vendorId = new URLSearchParams(window.location.search).get('id');
+
+        // 🚀 UPGRADED SMART BACK FUNCTION
+        window.smartBack = function() {
+            const referrer = document.referrer;
+            const currentDomain = window.location.origin;
+
+            // If there is no referrer OR they came from outside (WhatsApp/Twitter)
+            if (!referrer || !referrer.startsWith(currentDomain) || referrer.includes('wa.me')) {
+                window.location.href = "../../index.html"; 
+            } else {
+                window.history.back();
+            }
+        }
 
         document.addEventListener("DOMContentLoaded", async () => {
             const { data: { session } } = await supabaseClient.auth.getSession();

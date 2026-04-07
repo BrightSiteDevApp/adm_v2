@@ -2,15 +2,64 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AFIT Digital Market | Home</title>
+
+    <title>AFIT Digital Market (ADM) | #1 Campus Marketplace</title>
+    <meta name="description" content="Join AFIT Digital Market (ADM) to buy, sell, and discover services on campus. The ultimate student marketplace connecting AFIT vendors and buyers securely.">
+    <meta name="keywords" content="AFIT Digital Market, AFIT marketplace, campus marketplace Nigeria, student vendors AFIT, buy and sell on campus, ADM AFIT, AFIT services, student market Kaduna">
+    <meta name="author" content="BrightSiteDev">
     
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://afitdgm.store/">
+
+    <meta name="geo.region" content="NG-KD"> <meta name="geo.placename" content="Kaduna">
+    <meta name="geo.position" content="10.5105;7.4165"> <meta name="ICBM" content="10.5105, 7.4165">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="AFIT Digital Market">
+    <meta property="og:locale" content="en_NG">
+    <meta property="og:url" content="https://afitdgm.store/">
+    <meta property="og:title" content="AFIT Digital Market (ADM) | Discover. Connect. Trade.">
+    <meta property="og:description" content="Your campus digital marketplace built for AFIT students. Discover businesses, compare prices, and connect instantly.">
+    <meta property="og:image" content="https://afitdgm.store/asset/img/app-logo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@brightsitedev"> <meta name="twitter:title" content="AFIT Digital Market (ADM)">
+    <meta name="twitter:description" content="Buy, sell, and discover services securely on the AFIT campus.">
+    <meta name="twitter:image" content="https://afitdgm.store/asset/img/app-logo.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "AFIT Digital Market",
+      "alternateName": "ADM",
+      "url": "https://afitdgm.store/",
+      "description": "A student-focused digital marketplace for AFIT.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://afitdgm.store/search/index.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2d8eff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="AFIT DGM">
+
+    <link rel="icon" href="asset/img/app-logo.png" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="asset/img/app-logo.png">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="asset/style.css">
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2d8eff">
-<link rel="apple-touch-icon" href="asset/img/app-logo.png">
 </head>
 <body>
 
@@ -21,7 +70,7 @@
                <a href="/" class="logo-link">
                     <img src="asset/img/logo.png" alt="AFIT Digital Market Logo" class="header-logo" onerror="this.src='https://via.placeholder.com/150x45?text=AFIT+DGM'">
                 </a>
-                <a href="notification/index.html" class="notify-icon-container" style="position: relative; text-decoration: none; color: var(--brand-color); display: inline-block; font-size: 22px;">
+                <a href="notification/" class="notify-icon-container" style="position: relative; text-decoration: none; color: var(--brand-color); display: inline-block; font-size: 22px;">
     <i class="fas fa-bell"></i>
     <span class="notify-dot" style="display: none; position: absolute; top: -2px; right: -2px; width: 10px; height: 10px; background-color: #ef4444; border-radius: 50%; border: 2px solid white;"></span>
 </a>
@@ -79,7 +128,7 @@
             <div class="section-wrapper">
                 <div class="section-header">
                     <div class="section-title">Student Reviews</div>
-                    <a href="reviews/index.html" class="see-all">See all</a>
+                    <a href="reviews/" class="see-all">See all</a>
                 </div>
                <div class="reviews-slider" id="reviews-slider">
                     <div class="review-card">
@@ -99,7 +148,7 @@
             <div class="section-wrapper">
                 <div class="section-header">
                     <div class="section-title">Available Items</div>
-                    <a href="items/index.html" class="see-all">See all</a>
+                    <a href="items/" class="see-all">See all</a>
                 </div>
                 <div class="product-grid" id="product-grid">
                     <div class="sk-card">
@@ -120,7 +169,7 @@
             <div class="section-wrapper">
                 <div class="section-header">
                     <div class="section-title">Verified Vendors</div>
-                    <a href="vendors/index.html" class="see-all">See all</a>
+                    <a href="vendors/" class="see-all">See all</a>
                 </div>
                <div class="product-grid" id="vendor-grid">
                     <div class="sk-card" style="align-items: center;">
@@ -139,7 +188,7 @@
             <div class="section-wrapper" style="margin-top: 10px;">
                 <div class="section-header">
                     <div class="section-title">Campus Gist & News</div>
-                    <a href="blogs/index.html" class="see-all">See all</a>
+                    <a href="blogs/" class="see-all">See all</a>
                 </div>
                <div id="blog-list">
                     <div class="blog-card">
@@ -159,7 +208,7 @@
                 </div>
 
                 <div class="footer-top-collapsed">
-                    <a href="index.html" class="logo-link">
+                    <a href="./" class="logo-link">
                     <img src="asset/img/logo-1.png" alt="AFIT Digital Market Logo" class="header-logo" onerror="this.src='https://via.placeholder.com/150x45?text=AFIT+DGM'">
                 </a>
                     <button class="download-app-btn" onclick="downloadApp()">Download App</button>
@@ -167,10 +216,10 @@
 
                 <div class="footer-expanded-links">
                     <div class="footer-links-grid">
-                        <a href="about/index.html">About</a>
-                        <a href="faq/index.html">FAQ</a>
-                        <a href="terms/index.html">T&C</a>
-                        <a href="contact/index.html">Contact</a>
+                        <a href="about/">About</a>
+                        <a href="privacy-policy/">Privacy</a>
+                        <a href="terms/">T&C</a>
+                        <a href="contact/">Contact</a>
                     </div>
                     <p class="copyright-text">
                         &copy; 2026 AFIT Digital Market<br>

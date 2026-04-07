@@ -1,16 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AFIT Digital Market | Authentication</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VSGR5WBW"></script>
     
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Login & Sign Up | AFIT Digital Market</title>
+    <meta name="description" content="Log in to your AFIT Digital Market account to buy, sell, and chat with vendors on campus. New to ADM? Sign up and join the student marketplace today.">
+    <meta name="keywords" content="AFIT Digital Market login, ADM sign up, AFIT vendor login, student marketplace account, campus market registration, buy and sell AFIT">
+    <meta name="author" content="BrightSiteDev">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://afitdgm.store/login/">
+
+    <meta name="geo.region" content="NG-KD"> 
+    <meta name="geo.placename" content="Kaduna">
+    <meta name="geo.position" content="10.5105;7.4165"> 
+    <meta name="ICBM" content="10.5105, 7.4165">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="AFIT Digital Market">
+    <meta property="og:locale" content="en_NG">
+    <meta property="og:url" content="https://afitdgm.store/login/">
+    <meta property="og:title" content="Login to AFIT Digital Market">
+    <meta property="og:description" content="Access your ADM account to discover campus items, manage your saved products, and chat directly with vendors.">
+    <meta property="og:image" content="https://afitdgm.store/asset/img/app-logo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@brightsitedev"> 
+    <meta name="twitter:title" content="Login & Sign Up | AFIT Digital Market">
+    <meta name="twitter:description" content="Access your account or register to join the biggest campus marketplace in AFIT.">
+    <meta name="twitter:image" content="https://afitdgm.store/asset/img/app-logo.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Login and Registration - AFIT Digital Market",
+      "url": "https://afitdgm.store/login/",
+      "description": "Authentication portal for AFIT Digital Market users and vendors.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "AFIT Digital Market",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://afitdgm.store/asset/img/app-logo.png"
+        }
+      }
+    }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-     <link rel="stylesheet" href="../asset/style.css">
-    
+    <link rel="stylesheet" href="../asset/style.css">
+    <link rel="icon" href="../asset/img/app-logo.png" type="image/png">
+    <link rel="icon" href="../asset/img/app-logo.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#2d8eff">
+
     <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
         * { box-sizing: border-box; }
 
@@ -77,6 +130,13 @@
 
         .signup-only { display: none; }
 
+        /* 🚀 NEW TERMS AND CONDITIONS CHECKBOX STYLES */
+        .terms-group { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; }
+        .terms-checkbox { margin-top: 2px; cursor: pointer; accent-color: var(--brand-color); width: 16px; height: 16px; flex-shrink: 0; }
+        .terms-label { font-size: 12px; color: var(--text-muted); line-height: 1.4; cursor: pointer; }
+        .terms-label a { color: var(--brand-color); font-weight: 600; text-decoration: none; transition: 0.2s; }
+        .terms-label a:hover { text-decoration: underline; }
+
         /* ========================================= */
         /* 🌙 DARK MODE FIXES                        */
         /* ========================================= */
@@ -102,12 +162,18 @@
         body.dark-mode .form-input:focus { border-color: var(--brand-color) !important; }
         
         body.dark-mode .auth-switch { color: #94a3b8 !important; }
+        body.dark-mode .terms-label { color: #94a3b8 !important; }
         
         body.dark-mode .error-msg { background: rgba(239, 68, 68, 0.1) !important; border-color: #ef4444 !important; color: #fca5a5 !important; }
         body.dark-mode .success-msg { background: rgba(16, 185, 129, 0.1) !important; border-color: #10b981 !important; color: #6ee7b7 !important; }
     </style>
 </head>
 <body>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
 
     <div class="app-container">
         <div class="auth-card">
@@ -141,6 +207,13 @@
                 </div>
 
                 <span class="forgot-password" id="forgot-btn" onclick="recoverPassword()">Forgot Password?</span>
+
+                <div class="terms-group signup-only">
+                    <input type="checkbox" id="terms" class="terms-checkbox">
+                    <label for="terms" class="terms-label">
+                        I agree to the <a href="../terms/index.html" target="_blank">Terms and Conditions</a> and Privacy Policy. *
+                    </label>
+                </div>
 
                 <button type="submit" class="auth-btn" id="submit-btn">Sign In</button>
             </form>
@@ -179,7 +252,7 @@
             return "../";
         }
 
-        window.switchView = function() {
+       window.switchView = function() {
             isSignUpMode = !isSignUpMode;
             document.getElementById('msg-box').style.display = 'none';
 
@@ -192,9 +265,18 @@
                 document.getElementById('forgot-btn').style.display = "none";
                 document.getElementById('switch-text').innerHTML = `Already have an account? <span onclick="switchView()">Sign In</span>`;
                 
-                signupFields.forEach(f => f.style.display = "block");
+                // 🚀 FIX: Apply 'block' to normal inputs, and 'flex' ONLY to the checkbox group
+                signupFields.forEach(f => {
+                    if (f.classList.contains('terms-group')) {
+                        f.style.display = "flex";
+                    } else {
+                        f.style.display = "block";
+                    }
+                });
+                
                 document.getElementById('name').required = true;
                 document.getElementById('phone').required = true;
+                document.getElementById('terms').required = true;
             } else {
                 document.getElementById('page-title').innerText = "Welcome Back";
                 document.getElementById('page-subtitle').innerText = "Sign in to your student account";
@@ -203,11 +285,13 @@
                 document.getElementById('switch-text').innerHTML = `Don't have an account? <span onclick="switchView()">Create one</span>`;
                 
                 signupFields.forEach(f => f.style.display = "none");
+                
                 document.getElementById('name').required = false;
                 document.getElementById('phone').required = false;
+                document.getElementById('terms').required = false;
             }
         };
-
+        
         window.processAuth = async function(event) {
             event.preventDefault(); 
             
@@ -215,9 +299,17 @@
             const passwordVal = document.getElementById('password').value;
             const nameVal = document.getElementById('name').value.trim();
             const phoneVal = document.getElementById('phone').value.trim();
+            const termsChecked = document.getElementById('terms').checked;
             const btn = document.getElementById('submit-btn');
 
             document.getElementById('msg-box').style.display = 'none';
+
+            // Extra JavaScript validation just to be 100% safe
+            if (isSignUpMode && !termsChecked) {
+                displayMessage("You must agree to the Terms and Conditions to register.", true);
+                return;
+            }
+
             btn.disabled = true;
             btn.innerText = "Processing...";
 

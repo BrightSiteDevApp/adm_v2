@@ -1,12 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-70VSGR5WBW"></script>
+    
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vendor Registration | AFIT Digital Market</title>
+
+    <title>Vendor Registration | Sell on AFIT Digital Market</title>
+    <meta name="description" content="Become a verified vendor on AFIT Digital Market. Register your student business, set up your digital storefront, and start selling to the AFIT campus community today.">
+    <meta name="keywords" content="AFIT Digital Market vendor registration, sell on AFIT campus, become a vendor ADM, student entrepreneur Kaduna, open store AFIT, student business Nigeria">
+    <meta name="author" content="BrightSiteDev">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://afitdgm.store/vendor-reg/">
+
+    <meta name="geo.region" content="NG-KD"> 
+    <meta name="geo.placename" content="Kaduna">
+    <meta name="geo.position" content="10.5105;7.4165"> 
+    <meta name="ICBM" content="10.5105, 7.4165">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="AFIT Digital Market">
+    <meta property="og:locale" content="en_NG">
+    <meta property="og:url" content="https://afitdgm.store/vendor-reg/">
+    <meta property="og:title" content="Become a Vendor | AFIT Digital Market">
+    <meta property="og:description" content="Ready to grow your student business? Register as a vendor on ADM and reach hundreds of buyers on campus.">
+    <meta property="og:image" content="https://afitdgm.store/asset/img/app-logo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@brightsitedev"> 
+    <meta name="twitter:title" content="Vendor Registration | AFIT Digital Market">
+    <meta name="twitter:description" content="Turn your side hustle into a campus business. Register to sell on AFIT Digital Market.">
+    <meta name="twitter:image" content="https://afitdgm.store/asset/img/app-logo.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Vendor Registration - AFIT Digital Market",
+      "url": "https://afitdgm.store/vendor-reg/",
+      "description": "Vendor registration and onboarding portal for student entrepreneurs to open a digital storefront on AFIT Digital Market.",
+      "potentialAction": {
+        "@type": "RegisterAction",
+        "target": "https://afitdgm.store/vendor-reg/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AFIT Digital Market",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://afitdgm.store/asset/img/app-logo.png"
+        }
+      }
+    }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../asset/style.css">
+    <link rel="icon" href="../asset/img/app-logo.png" type="image/png">
+    <link rel="icon" href="../asset/img/app-logo.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
 
     <style>
         .header-top-flex { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
@@ -47,7 +103,14 @@
         .file-upload-box input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
         .file-upload-box.has-file { border-style: solid; border-color: #10b981; background: #ecfdf5; }
 
-        .submit-btn { background: var(--brand-color); color: white; width: 100%; padding: 18px; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 15px rgba(45, 142, 255, 0.3); transition: 0.2s; }
+        /* 🚀 TERMS CHECKBOX STYLES */
+        .terms-group { display: flex; align-items: flex-start; gap: 10px; margin-top: 25px; margin-bottom: 15px; }
+        .terms-checkbox { margin-top: 2px; cursor: pointer; accent-color: var(--brand-color); width: 16px; height: 16px; flex-shrink: 0; }
+        .terms-label { font-size: 13px; font-weight: 600; color: var(--text-muted); line-height: 1.4; cursor: pointer; }
+        .terms-label a { color: var(--brand-color); font-weight: 800; text-decoration: none; transition: 0.2s; }
+        .terms-label a:hover { text-decoration: underline; }
+
+        .submit-btn { background: var(--brand-color); color: white; width: 100%; padding: 18px; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(45, 142, 255, 0.3); transition: 0.2s; }
         .submit-btn:active { transform: scale(0.98); }
         .submit-btn:disabled { background: #94a3b8; box-shadow: none; cursor: not-allowed; transform: none; }
 
@@ -73,6 +136,8 @@
         body.dark-mode .file-upload-box { background: #1e293b !important; border-color: #334155 !important; }
         body.dark-mode .file-upload-box:hover { background: #0f172a !important; border-color: var(--brand-color) !important; }
         body.dark-mode .file-upload-box.has-file { background: rgba(16, 185, 129, 0.1) !important; border-color: #10b981 !important; }
+
+        body.dark-mode .terms-label { color: #94a3b8 !important; }
 
         body.dark-mode #auth-check-loader { background: #020617 !important; }
     </style>
@@ -185,6 +250,13 @@
                     </div>
                 </div>
 
+                <div class="terms-group">
+                    <input type="checkbox" id="vendor-terms" class="terms-checkbox" required>
+                    <label for="vendor-terms" class="terms-label">
+                        I have read and agree to the <a href="../vendors-policy/index.html" target="_blank">Vendor Policy</a> & Terms. *
+                    </label>
+                </div>
+
                 <button type="submit" id="submitBtn" class="submit-btn">Submit Application</button>
             </form>
         </div>
@@ -266,6 +338,7 @@
         async function submitRegistration(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
+            const termsChecked = document.getElementById('vendor-terms').checked;
             
             const selectedCats = [];
             document.querySelectorAll('.cat-checkbox:checked').forEach(c => selectedCats.push(c.value));
@@ -273,6 +346,11 @@
             // 🚀 NEW: Double check category count on submit
             if(selectedCats.length === 0) return alert("Please select at least one category for your business.");
             if(selectedCats.length > 5) return alert("You can only select a maximum of 5 categories.");
+            
+            // 🚀 NEW: Safety check for Vendor Policy
+            if (!termsChecked) {
+                return alert("You must agree to the Vendor Policy to submit your application.");
+            }
 
             btn.disabled = true;
 

@@ -8,6 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../asset/style.css">
+    <link rel="icon" href="../asset/img/app-logo.png" type="image/png" sizes="192x192">
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
 
     <style>
         /* --- PRODUCT PAGE STYLES (AFIT REDESIGN) --- */
@@ -198,10 +200,18 @@
             return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
         }
 
+        // 🚀 UPGRADED SMART BACK FUNCTION
         window.smartBack = function() {
-            if (document.referrer === "" || document.referrer.includes('wa.me')) {
-                window.location.href = "../items/index.html";
+            const referrer = document.referrer;
+            const currentDomain = window.location.origin;
+
+            // If there is no referrer (opened directly via link), 
+            // OR they came from a different website entirely (like WhatsApp, Twitter),
+            // send them to the main items index to keep them in the app.
+            if (!referrer || !referrer.startsWith(currentDomain) || referrer.includes('wa.me')) {
+                window.location.href = "../index.html"; 
             } else {
+                // Safe to go back, they have history within the app
                 window.history.back();
             }
         }
